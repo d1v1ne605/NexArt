@@ -6,7 +6,7 @@ schema:
 dataSources:
   - kind: ethereum
     name: Counter
-    network: optimism-sepolia
+    network: ganache
     source:
       address: "0x8aB215541656867Fd7c2689060E17E8A73bb44D2"
       abi: Counter
