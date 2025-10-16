@@ -1,0 +1,7 @@
+type Increment @entity(immutable: true) {
+  id: Bytes!
+  by: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}

@@ -37,10 +37,6 @@ const config: HardhatUserConfig = {
       type: "http",
       url: "http://127.0.0.1:7545",
       chainId: 1337,
-      accounts: [
-        // "0x2f92d1e2a91ab0b823e6f501adbbfdac239971082cb55e1306592fc98fb0c801",
-        // "0x2bca502a0bf12cb9ae2412a3a4d5664e12e0a69f0c2cbe4f179a2f550c5d490c",
-      ],
     },
     hardhatMainnet: {
       type: "edr-simulated",

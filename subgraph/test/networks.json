@@ -1,0 +1,8 @@
+{
+  "optimism-sepolia": {
+    "Counter": {
+      "address": "0x8aB215541656867Fd7c2689060E17E8A73bb44D2",
+      "startBlock": 7
+    }
+  }
+}
