@@ -9,3 +9,5 @@ smart-contract-des.text
 accounts.text
 .DS_Store
 artifacts
+/server/ignition/deployments/*
+!/server/ignition/deployments/.gitkeep
