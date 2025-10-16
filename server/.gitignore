@@ -1,0 +1,9 @@
+node_modules
+.env
+script.example.text
+/cache
+zClassDiagram_NFT_Marketplace.png
+zUsecase_NFT_Marketplace.png
+.github
+smart-contract-des.text
+accounts.text
