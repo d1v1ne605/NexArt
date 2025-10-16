@@ -1,4 +1,5 @@
-type FeeRecipientUpdated @entity(immutable: true) {
+# MarketplaceFeeManager
+type MarketplaceFeeManagerFeeRecipientUpdated @entity(immutable: true) {
   id: Bytes!
   oldRecipient: Bytes! # address
   newRecipient: Bytes! # address
@@ -34,7 +35,7 @@ type MinimumFeeUpdated @entity(immutable: true) {
   transactionHash: Bytes!
 }
 
-type OwnershipTransferred @entity(immutable: true) {
+type MarketplaceFeeManagerOwnershipTransferred @entity(immutable: true) {
   id: Bytes!
   previousOwner: Bytes! # address
   newOwner: Bytes! # address
@@ -43,7 +44,7 @@ type OwnershipTransferred @entity(immutable: true) {
   transactionHash: Bytes!
 }
 
-type Paused @entity(immutable: true) {
+type MarketplaceFeeManagerPaused @entity(immutable: true) {
   id: Bytes!
   account: Bytes! # address
   blockNumber: BigInt!
@@ -51,7 +52,156 @@ type Paused @entity(immutable: true) {
   transactionHash: Bytes!
 }
 
-type Unpaused @entity(immutable: true) {
+type MarketplaceFeeManagerUnpaused @entity(immutable: true) {
+  id: Bytes!
+  account: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+# NFTCollectionFactory
+type CollectionCreated @entity(immutable: true) {
+  id: Bytes!
+  collection: Bytes! # address
+  creator: Bytes! # address
+  name: String! # string
+  symbol: String! # string
+  maxSupply: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type DeploymentFeeUpdated @entity(immutable: true) {
+  id: Bytes!
+  oldFee: BigInt! # uint256
+  newFee: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type NFTCollectionFactoryFeeRecipientUpdated @entity(immutable: true) {
+  id: Bytes!
+  oldRecipient: Bytes! # address
+  newRecipient: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type MaxCollectionsPerCreatorUpdated @entity(immutable: true) {
+  id: Bytes!
+  oldMax: BigInt! # uint256
+  newMax: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type NFTCollectionFactoryOwnershipTransferred @entity(immutable: true) {
+  id: Bytes!
+  previousOwner: Bytes! # address
+  newOwner: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type NFTCollectionFactoryPaused @entity(immutable: true) {
+  id: Bytes!
+  account: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type NFTCollectionFactoryUnpaused @entity(immutable: true) {
+  id: Bytes!
+  account: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+# Marketplace
+type ItemListed @entity(immutable: true) {
+  id: Bytes!
+  listingId: Bytes! # bytes32
+  seller: Bytes! # address
+  nftContract: Bytes! # address
+  tokenId: BigInt! # uint256
+  price: BigInt! # uint256
+  paymentToken: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type ItemSold @entity(immutable: true) {
+  id: Bytes!
+  listingId: Bytes! # bytes32
+  buyer: Bytes! # address
+  seller: Bytes! # address
+  nftContract: Bytes! # address
+  tokenId: BigInt! # uint256
+  price: BigInt! # uint256
+  paymentToken: Bytes! # address
+  marketFee: BigInt! # uint256
+  royaltyFee: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type ListingCancelled @entity(immutable: true) {
+  id: Bytes!
+  listingId: Bytes! # bytes32
+  seller: Bytes! # address
+  nftContract: Bytes! # address
+  tokenId: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type PaymentTokenUpdated @entity(immutable: true) {
+  id: Bytes!
+  token: Bytes! # address
+  supported: Boolean! # bool
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type MinimumListingPriceUpdated @entity(immutable: true) {
+  id: Bytes!
+  oldPrice: BigInt! # uint256
+  newPrice: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type MarketplaceOwnershipTransferred @entity(immutable: true) {
+  id: Bytes!
+  previousOwner: Bytes! # address
+  newOwner: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type MarketplacePaused @entity(immutable: true) {
+  id: Bytes!
+  account: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type MarketplaceUnpaused @entity(immutable: true) {
   id: Bytes!
   account: Bytes! # address
   blockNumber: BigInt!

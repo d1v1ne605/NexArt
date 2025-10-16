@@ -8,19 +8,19 @@ import {
   Unpaused as UnpausedEvent
 } from "../generated/MarketplaceFeeManager/MarketplaceFeeManager"
 import {
-  FeeRecipientUpdated,
+  MarketplaceFeeManagerFeeRecipientUpdated,
   FeeUpdated,
   FeesWithdrawn,
   MinimumFeeUpdated,
-  OwnershipTransferred,
-  Paused,
-  Unpaused
+  MarketplaceFeeManagerOwnershipTransferred,
+  MarketplaceFeeManagerPaused,
+  MarketplaceFeeManagerUnpaused
 } from "../generated/schema"
 
 export function handleFeeRecipientUpdated(
   event: FeeRecipientUpdatedEvent
 ): void {
-  let entity = new FeeRecipientUpdated(
+  let entity = new MarketplaceFeeManagerFeeRecipientUpdated(
     event.transaction.hash.concatI32(event.logIndex.toI32())
   )
   entity.oldRecipient = event.params.oldRecipient
@@ -78,7 +78,7 @@ export function handleMinimumFeeUpdated(event: MinimumFeeUpdatedEvent): void {
 export function handleOwnershipTransferred(
   event: OwnershipTransferredEvent
 ): void {
-  let entity = new OwnershipTransferred(
+  let entity = new MarketplaceFeeManagerOwnershipTransferred(
     event.transaction.hash.concatI32(event.logIndex.toI32())
   )
   entity.previousOwner = event.params.previousOwner
@@ -92,7 +92,7 @@ export function handleOwnershipTransferred(
 }
 
 export function handlePaused(event: PausedEvent): void {
-  let entity = new Paused(
+  let entity = new MarketplaceFeeManagerPaused(
     event.transaction.hash.concatI32(event.logIndex.toI32())
   )
   entity.account = event.params.account
@@ -105,7 +105,7 @@ export function handlePaused(event: PausedEvent): void {
 }
 
 export function handleUnpaused(event: UnpausedEvent): void {
-  let entity = new Unpaused(
+  let entity = new MarketplaceFeeManagerUnpaused(
     event.transaction.hash.concatI32(event.logIndex.toI32())
   )
   entity.account = event.params.account

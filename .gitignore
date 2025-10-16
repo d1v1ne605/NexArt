@@ -11,5 +11,5 @@ artifacts
 /server/ignition/deployments/*
 !/server/ignition/deployments/.gitkeep
 cache
-/subgraph/test/data/*
-!/subgraph/test/data/.gitkeep
+/subgraph/*/data/*
+!/subgraph/*/data/.gitkeep

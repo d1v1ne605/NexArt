@@ -6,7 +6,7 @@ schema:
 dataSources:
   - kind: ethereum
     name: MarketplaceFeeManager
-    network: optimism-sepolia
+    network: ganache
     source:
       address: "0xCD3e96AaE2B3BDaAb3B4893a67dF1580f051A20E"
       abi: MarketplaceFeeManager
@@ -16,13 +16,13 @@ dataSources:
       apiVersion: 0.0.9
       language: wasm/assemblyscript
       entities:
-        - FeeRecipientUpdated
+        - MarketplaceFeeManagerFeeRecipientUpdated
         - FeeUpdated
         - FeesWithdrawn
         - MinimumFeeUpdated
-        - OwnershipTransferred
-        - Paused
-        - Unpaused
+        - MarketplaceFeeManagerOwnershipTransferred
+        - MarketplaceFeeManagerPaused
+        - MarketplaceFeeManagerUnpaused
       abis:
         - name: MarketplaceFeeManager
           file: ./abis/MarketplaceFeeManager.json
@@ -42,3 +42,83 @@ dataSources:
         - event: Unpaused(address)
           handler: handleUnpaused
       file: ./src/marketplace-fee-manager.ts
+  - kind: ethereum
+    name: NFTCollectionFactory
+    network: ganache
+    source:
+      address: "0xBCd650aa5eF13115a3113e6D98B8ab8dB127beE1"
+      abi: NFTCollectionFactory
+      startBlock: 11
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - CollectionCreated
+        - DeploymentFeeUpdated
+        - NFTCollectionFactoryFeeRecipientUpdated
+        - MaxCollectionsPerCreatorUpdated
+        - NFTCollectionFactoryOwnershipTransferred
+        - NFTCollectionFactoryPaused
+        - NFTCollectionFactoryUnpaused
+      abis:
+        - name: NFTCollectionFactory
+          file: ./abis/NFTCollectionFactory.json
+      eventHandlers:
+        - event: CollectionCreated(indexed address,indexed address,string,string,uint256)
+          handler: handleCollectionCreated
+        - event: DeploymentFeeUpdated(uint256,uint256)
+          handler: handleDeploymentFeeUpdated
+        - event: FeeRecipientUpdated(address,address)
+          handler: handleFeeRecipientUpdated
+        - event: MaxCollectionsPerCreatorUpdated(uint256,uint256)
+          handler: handleMaxCollectionsPerCreatorUpdated
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: Paused(address)
+          handler: handlePaused
+        - event: Unpaused(address)
+          handler: handleUnpaused
+      file: ./src/nft-collection-factory.ts
+  
+  - kind: ethereum
+    name: Marketplace
+    network: ganache
+    source:
+      address: "0xccc33E23199E1bD58f3cD9b8740539810a8a6a0c"
+      abi: Marketplace
+      startBlock: 12
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - ItemListed
+        - ItemSold
+        - ListingCancelled
+        - PaymentTokenUpdated
+        - MinimumListingPriceUpdated
+        - MarketplaceOwnershipTransferred
+        - MarketplacePaused
+        - MarketplaceUnpaused
+      abis:
+        - name: Marketplace
+          file: ./abis/Marketplace.json
+      eventHandlers:
+        - event: ItemListed(indexed bytes32,indexed address,indexed address,uint256,uint256,address)
+          handler: handleItemListed
+        - event: ItemSold(indexed bytes32,indexed address,indexed address,address,uint256,uint256,address,uint256,uint256)
+          handler: handleItemSold
+        - event: ListingCancelled(indexed bytes32,indexed address,address,uint256)
+          handler: handleListingCancelled
+        - event: PaymentTokenUpdated(indexed address,bool)
+          handler: handlePaymentTokenUpdated
+        - event: MinimumListingPriceUpdated(uint256,uint256)
+          handler: handleMinimumListingPriceUpdated
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: Paused(address)
+          handler: handlePaused
+        - event: Unpaused(address)
+          handler: handleUnpaused
+      file: ./src/marketplace.ts
