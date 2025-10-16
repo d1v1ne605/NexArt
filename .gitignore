@@ -7,3 +7,5 @@ zUsecase_NFT_Marketplace.png
 .github
 smart-contract-des.text
 accounts.text
+.DS_Store
+artifacts
