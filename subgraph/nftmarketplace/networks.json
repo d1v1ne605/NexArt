@@ -1,5 +1,5 @@
 {
-  "ganache": {
+  "localhost": {
     "MarketplaceFeeManager": {
       "address": "0xCD3e96AaE2B3BDaAb3B4893a67dF1580f051A20E",
       "startBlock": 10
