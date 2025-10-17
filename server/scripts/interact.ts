@@ -1,13 +1,14 @@
 import { ethers } from "ethers";
 import { network } from "hardhat";
 import * as readline from "readline";
+import "dotenv/config";
 
 // Contract addresses (deployed contracts)
 const NFT_COLLECTION_FACTORY_ADDRESS =
-  "0xBCd650aa5eF13115a3113e6D98B8ab8dB127beE1";
-const MARKETPLACE_ADDRESS = "0xccc33E23199E1bD58f3cD9b8740539810a8a6a0c";
+  process.env.NFT_COLLECTION_FACTORY_ADDRESS as string;
+const MARKETPLACE_ADDRESS = process.env.MARKETPLACE_ADDRESS as string;
 const MARKETPLACE_FEE_MANAGER_ADDRESS =
-  "0xCD3e96AaE2B3BDaAb3B4893a67dF1580f051A20E";
+  process.env.MARKETPLACE_FEE_MANAGER_ADDRESS as string;
 
 // Global variables
 let signer: any;

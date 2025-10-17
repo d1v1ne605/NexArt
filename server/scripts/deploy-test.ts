@@ -1,5 +1,6 @@
 import { network } from "hardhat";
-const { ethers } = await network.connect("ganache");
+import "dotenv/config";
+const { ethers } = await network.connect(process.env.NETWORK || "");
 
 async function main() {
   const Counter = await ethers.getContractFactory("Counter");

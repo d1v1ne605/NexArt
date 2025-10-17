@@ -1,5 +1,6 @@
 import { network } from "hardhat";
-const { ethers } = await network.connect("ganache");
+import "dotenv/config";
+const { ethers } = await network.connect(process.env.NETWORK || "");
 
 async function main() {
   const CONTRACT_ADDRESS = "0x8aB215541656867Fd7c2689060E17E8A73bb44D2";
