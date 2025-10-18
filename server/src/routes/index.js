@@ -1,7 +1,10 @@
 "use strict";
-const express = require("express");
+import express from "express";
 const router = express.Router();
 
-router.use("/test", require("./test"));
+import authRoutes from "./auth/index.js";
 
-module.exports = router;
+// router.use("/test", import("./test"));
+router.use('/auth', authRoutes);
+
+export default router;
