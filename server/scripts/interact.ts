@@ -97,7 +97,7 @@ async function initializeContracts() {
 
   try {
     // Connect to network and get ethers
-    const { ethers: hreEthers } = await network.connect("ganache");
+    const { ethers: hreEthers } = await network.connect(process.env.NETWORK || "");
 
     // Get signer
     [signer] = await hreEthers.getSigners();
