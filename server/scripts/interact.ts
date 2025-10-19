@@ -370,7 +370,7 @@ async function showAccountInfo() {
   console.log("═══════════════════════════════════════════");
 
   try {
-    const { ethers: hreEthers } = await network.connect("ganache");
+    const { ethers: hreEthers } = await network.connect(process.env.NETWORK || "");
     const balance = await hreEthers.provider.getBalance(signer.address);
     console.log(`📍 Address: ${signer.address}`);
     console.log(`💰 Balance: ${formatEther(balance)} ETH`);
@@ -581,7 +581,7 @@ async function mintRandomNFT() {
       return;
     }
 
-    const { ethers: hreEthers } = await network.connect("ganache");
+    const { ethers: hreEthers } = await network.connect(process.env.NETWORK || "");
     const nftCollection = await hreEthers.getContractAt(
       "NFTCollection",
       collectionAddress,
@@ -652,7 +652,7 @@ async function batchMintRandomNFTs() {
     const quantityStr = await getUserInput("Enter quantity to mint (1-5): ");
     const quantity = Math.min(Math.max(parseInt(quantityStr) || 3, 1), 5);
 
-    const { ethers: hreEthers } = await network.connect("ganache");
+    const { ethers: hreEthers } = await network.connect(process.env.NETWORK || "");
     const nftCollection = await hreEthers.getContractAt(
       "NFTCollection",
       collectionAddress,
@@ -712,7 +712,7 @@ async function viewCollectionStats() {
       return;
     }
 
-    const { ethers: hreEthers } = await network.connect("ganache");
+    const { ethers: hreEthers } = await network.connect(process.env.NETWORK || "");
     const nftCollection = await hreEthers.getContractAt(
       "NFTCollection",
       collectionAddress,
@@ -768,7 +768,7 @@ async function viewTokenInfo() {
       return;
     }
 
-    const { ethers: hreEthers } = await network.connect("ganache");
+    const { ethers: hreEthers } = await network.connect(process.env.NETWORK || "");
     const nftCollection = await hreEthers.getContractAt(
       "NFTCollection",
       collectionAddress,
@@ -814,7 +814,7 @@ async function setRandomTokenRoyalty() {
       return;
     }
 
-    const { ethers: hreEthers } = await network.connect("ganache");
+    const { ethers: hreEthers } = await network.connect(process.env.NETWORK || "");
     const nftCollection = await hreEthers.getContractAt(
       "NFTCollection",
       collectionAddress,
@@ -870,7 +870,7 @@ async function listNFTForSale() {
       return;
     }
 
-    const { ethers: hreEthers } = await network.connect("ganache");
+    const { ethers: hreEthers } = await network.connect(process.env.NETWORK || "");
     const nftCollection = await hreEthers.getContractAt(
       "NFTCollection",
       nftContractAddress,
