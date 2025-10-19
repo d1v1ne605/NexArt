@@ -64,12 +64,16 @@ app.use(session(config.session));
 app.use(passport.initialize());
 app.use(passport.session());
 
-
 // Request logging middleware
 app.use((req, res, next) => {
   console.log(`${new Date().toISOString()} - ${req.method} ${req.originalUrl}`);
   next();
 });
+
+// init db
+import "./dbs/init.mysql.js";
+import { syncDatabase } from './models/index.js';
+await syncDatabase();
 
 // init routes
 app.use("/v1/api", routes);

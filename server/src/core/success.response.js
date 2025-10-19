@@ -1,5 +1,5 @@
 "use strict";
-const { StatusCodes, ReasonPhrases } = require("../utils/httpStatusCode");
+import { StatusCodes, ReasonPhrases } from "../utils/httpStatusCode.js";
 class SuccessResponse {
   constructor({
     message,
@@ -37,7 +37,7 @@ class CREATED extends SuccessResponse {
   }
 }
 
-module.exports = {
+export {
   OK,
   CREATED,
   SuccessResponse
