@@ -1,11 +1,7 @@
 "use strict";
-
-// Import all models
 import User from './user.model.js';
 import UserNFTFavorites from './userNftFavorites.model.js';
 import Notification from './notification.model.js';
-
-// Define associations/relationships between models
 
 // User - UserNFTFavorites relationship (1:many)
 User.hasMany(UserNFTFavorites, {

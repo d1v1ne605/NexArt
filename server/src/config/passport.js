@@ -25,11 +25,9 @@ passport.use(new GoogleStrategy({
   callbackURL: config.google.callbackURL
 }, async (accessToken, refreshToken, profile, done) => {
   try {
-    // Check if user already exists
     let existingUser = await UserModel.findByProviderId('google', profile.id);
 
     if (existingUser) {
-      // User exists, update their information
       existingUser = await UserModel.updateUser(existingUser.id, {
         username: profile.displayName,
         email: profile.emails[0].value,
@@ -39,7 +37,6 @@ passport.use(new GoogleStrategy({
       return done(null, existingUser);
     }
 
-    // Create new user
     const newUser = await UserModel.createUser({
       provider_id: profile.id,
       username: profile.displayName,
