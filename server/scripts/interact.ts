@@ -65,9 +65,9 @@ const generateRandomPrice = (): string => {
   return prices[Math.floor(Math.random() * prices.length)];
 };
 
-const generateRandomTokenURI = (): string => {
-  const tokenIds = Math.floor(Math.random() * 10000) + 1;
-  return `https://api.nexart.com/metadata/${tokenIds}.json`;
+const generateRandomTokenCID = (): string => {
+  const tokenCID = Math.floor(Math.random() * 10000) + 1;
+  return tokenCID.toString();
 };
 
 // Utility functions
@@ -588,18 +588,18 @@ async function mintRandomNFT() {
       signer
     );
 
-    const tokenURI = generateRandomTokenURI();
+    const tokenCID = generateRandomTokenCID();
     const royaltyBps = Math.floor(Math.random() * 500); // 0-5%
     const recipient = signer.address;
 
     console.log(`🎨 Minting NFT:`);
     console.log(`   To: ${recipient}`);
-    console.log(`   Token URI: ${tokenURI}`);
+    console.log(`   Token CID: ${tokenCID}`);
     console.log(`   Royalty: ${royaltyBps / 100}%`);
 
     console.log("\n🔄 Minting NFT...");
 
-    const tx = await nftCollection.mintNFT(recipient, tokenURI, royaltyBps);
+    const tx = await nftCollection.mintNFT(recipient, tokenCID, royaltyBps);
     console.log(`📝 Transaction Hash: ${tx.hash}`);
     console.log("⏳ Waiting for confirmation...");
 
@@ -659,9 +659,9 @@ async function batchMintRandomNFTs() {
       signer
     );
 
-    const tokenURIs = [];
+    const tokenCIDs = [];
     for (let i = 0; i < quantity; i++) {
-      tokenURIs.push(generateRandomTokenURI());
+      tokenCIDs.push(generateRandomTokenCID());
     }
 
     const royaltyBps = Math.floor(Math.random() * 500); // 0-5%
@@ -670,14 +670,14 @@ async function batchMintRandomNFTs() {
     console.log(`🎨 Batch Minting ${quantity} NFTs:`);
     console.log(`   To: ${recipient}`);
     console.log(`   Royalty: ${royaltyBps / 100}%`);
-    console.log(`   Token URIs:`);
-    tokenURIs.forEach((uri, i) => console.log(`     ${i + 1}. ${uri}`));
+    console.log(`   Token CIDs:`);
+    tokenCIDs.forEach((cid, i) => console.log(`     ${i + 1}. ${cid}`));
 
     console.log("\n🔄 Batch minting NFTs...");
 
     const tx = await nftCollection.batchMintNFT(
       recipient,
-      tokenURIs,
+      tokenCIDs,
       royaltyBps
     );
     console.log(`📝 Transaction Hash: ${tx.hash}`);

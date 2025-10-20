@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import config from '../config/config.js';
+import config from '../config/config.common.js';
 
 class JWTUtils {
   // Generate JWT token

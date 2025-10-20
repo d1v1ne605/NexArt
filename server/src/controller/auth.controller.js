@@ -1,7 +1,6 @@
 import passport from 'passport';
 import JWTUtils from '../utils/jwt.js';
-import User from '../models/User.js';
-import config from '../config/config.js';
+import config from '../config/config.common.js';
 import { OK, SuccessResponse } from '../core/success.response.js';
 import { AuthFailureError, ErrorResponse } from '../core/error.response.js';
 
@@ -36,7 +35,7 @@ class AuthController {
                     httpOnly: true,
                     secure: config.nodeEnv === 'production',
                     sameSite: 'lax',
-                    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+                    maxAge: 3 * 24 * 60 * 60 * 1000 // 3 days
                 });
 
                 // return to client with success
@@ -76,6 +75,7 @@ class AuthController {
 
     // Logout user
     logout = async (req, res) => {
+        console.log('Logging out user:', req.user ? req.user.id : 'Unknown');
         try {
             // Clear session
             req.logout((err) => {
@@ -86,8 +86,7 @@ class AuthController {
 
             // Clear cookies
             res.clearCookie('accessToken');
-            res.clearCookie('refreshToken');
-            res.clearCookie('connect.sid'); // Clear session cookie
+            res.clearCookie('connect.sid');
 
             new SuccessResponse({
                 message: 'User logged out successfully'

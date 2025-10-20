@@ -185,12 +185,12 @@ describe("NFT Marketplace System", function () {
 
       await nftCollection.connect(creator).mintNFT(
         buyer.address,
-        "ipfs://QmTest123",
+        "QmTest123",
         250 // 2.5% royalty
       );
 
       expect(await nftCollection.ownerOf(1)).to.equal(buyer.address);
-      expect(await nftCollection.tokenURI(1)).to.equal("https://api.example.com/metadata/ipfs://QmTest123");
+      expect(await nftCollection.tokenURI(1)).to.equal("https://api.example.com/metadata/QmTest123");
       expect(await nftCollection.totalMinted()).to.equal(1);
     });
 
@@ -199,7 +199,7 @@ describe("NFT Marketplace System", function () {
 
       await nftCollection.connect(creator).mintNFT(
         buyer.address,
-        "ipfs://QmTest123",
+        "QmTest123",
         250 // 2.5% royalty
       );
 
@@ -214,7 +214,7 @@ describe("NFT Marketplace System", function () {
       await expect(
         nftCollection.connect(buyer).mintNFT(
           buyer.address,
-          "ipfs://QmTest123",
+          "QmTest123",
           250
         )
       ).to.be.revertedWithCustomError(nftCollection, "OwnableUnauthorizedAccount");
@@ -223,7 +223,7 @@ describe("NFT Marketplace System", function () {
     it("Should batch mint successfully", async function () {
       const { nftCollection, creator, buyer } = await networkHelpers.loadFixture(deployCollectionFixture);
 
-      const tokenURIs = ["ipfs://QmTest1", "ipfs://QmTest2", "ipfs://QmTest3"];
+      const tokenURIs = ["QmTest1", "QmTest2", "QmTest3"];
       
       await nftCollection.connect(creator).batchMintNFT(
         buyer.address,
@@ -246,7 +246,7 @@ describe("NFT Marketplace System", function () {
       // Mint an NFT for testing
       await nftCollection.connect(creator).mintNFT(
         creator.address,
-        "ipfs://QmTest123",
+        "QmTest123",
         250 // 2.5% royalty
       );
 

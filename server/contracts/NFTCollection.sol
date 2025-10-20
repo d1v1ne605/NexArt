@@ -14,25 +14,32 @@ import "@openzeppelin/contracts/utils/Pausable.sol";
  * @notice Each collection is deployed as a separate contract by NFTCollectionFactory
  * @author NexArt Team
  */
-contract NFTCollection is ERC721, ERC721URIStorage, ERC721Enumerable, Ownable, ReentrancyGuard, Pausable {
-    /// @dev Base URI for token metadata
+contract NFTCollection is
+    ERC721,
+    ERC721URIStorage,
+    ERC721Enumerable,
+    Ownable,
+    ReentrancyGuard,
+    Pausable
+{
+    /// @dev Base URI for token metadata, this is ipfsGateway_ like :"https://ipfs.io/ipfs/",....
     string private _baseTokenURI;
-    
+
     /// @dev Current token ID counter
     uint256 private _currentTokenId;
-    
+
     /// @dev Maximum supply of tokens (0 = unlimited)
     uint256 public maxSupply;
-    
+
     /// @dev Collection description
     string public description;
-    
+
     /// @dev Collection external URL
     string public externalUrl;
-    
+
     /// @dev Mapping from token ID to creator
     mapping(uint256 => address) public tokenCreators;
-    
+
     /// @dev Mapping from token ID to royalty percentage (in basis points)
     mapping(uint256 => uint256) public tokenRoyalties;
 
@@ -47,7 +54,11 @@ contract NFTCollection is ERC721, ERC721URIStorage, ERC721Enumerable, Ownable, R
     /**
      * @dev Events
      */
-    event TokenMinted(uint256 indexed tokenId, address indexed to, string tokenURI);
+    event TokenMinted(
+        uint256 indexed tokenId,
+        address indexed to,
+        string tokenURI
+    );
     event BaseURIUpdated(string newBaseURI);
     event RoyaltySet(uint256 indexed tokenId, uint256 royaltyBps);
     event CollectionInfoUpdated(string description, string externalUrl);
@@ -56,7 +67,7 @@ contract NFTCollection is ERC721, ERC721URIStorage, ERC721Enumerable, Ownable, R
      * @dev Constructor initializes the collection
      * @param name_ Name of the NFT collection
      * @param symbol_ Symbol of the NFT collection
-     * @param baseURI_ Base URI for token metadata
+     * @param baseURI_ Base URI for token metadata, this is ipfsGateway_ like :"https://ipfs.io/ipfs/",....
      * @param creator_ Address of the collection creator
      * @param maxSupply_ Maximum supply of tokens (0 for unlimited)
      * @param description_ Collection description
@@ -78,20 +89,22 @@ contract NFTCollection is ERC721, ERC721URIStorage, ERC721Enumerable, Ownable, R
     /**
      * @dev Mints a new NFT to the specified address
      * @param to Address to mint the NFT to
-     * @param _tokenURI URI for the token metadata
+     * @param ipfsCID IPFS Content Identifier (not full URL)
      * @param royaltyBps Royalty percentage in basis points (e.g., 250 = 2.5%)
      * @notice Only the owner (creator) can mint new NFTs
+     * @notice BaseURI + CID = full IPFS URL
      */
     function mintNFT(
         address to,
-        string memory _tokenURI,
+        string memory ipfsCID,
         uint256 royaltyBps
     ) external onlyOwner nonReentrant whenNotPaused returns (uint256) {
         if (maxSupply > 0 && _currentTokenId > maxSupply) {
             revert MaxSupplyExceeded();
         }
-        
-        if (royaltyBps > 1000) { // Max 10% royalty
+
+        if (royaltyBps > 1000) {
+            // Max 10% royalty
             revert InvalidRoyaltyPercentage();
         }
 
@@ -99,12 +112,12 @@ contract NFTCollection is ERC721, ERC721URIStorage, ERC721Enumerable, Ownable, R
         _currentTokenId++;
 
         _safeMint(to, tokenId);
-        _setTokenURI(tokenId, _tokenURI);
-        
+        _setTokenURI(tokenId, ipfsCID);
+
         tokenCreators[tokenId] = owner();
         tokenRoyalties[tokenId] = royaltyBps;
 
-        emit TokenMinted(tokenId, to, _tokenURI);
+        emit TokenMinted(tokenId, to, ipfsCID);
         emit RoyaltySet(tokenId, royaltyBps);
 
         return tokenId;
@@ -122,11 +135,11 @@ contract NFTCollection is ERC721, ERC721URIStorage, ERC721Enumerable, Ownable, R
         uint256 royaltyBps
     ) external onlyOwner nonReentrant whenNotPaused returns (uint256[] memory) {
         uint256 quantity = tokenURIs.length;
-        
+
         if (maxSupply > 0 && (_currentTokenId + quantity - 1) > maxSupply) {
             revert MaxSupplyExceeded();
         }
-        
+
         if (royaltyBps > 1000) {
             revert InvalidRoyaltyPercentage();
         }
@@ -139,7 +152,7 @@ contract NFTCollection is ERC721, ERC721URIStorage, ERC721Enumerable, Ownable, R
 
             _safeMint(to, tokenId);
             _setTokenURI(tokenId, tokenURIs[i]);
-            
+
             tokenCreators[tokenId] = owner();
             tokenRoyalties[tokenId] = royaltyBps;
             tokenIds[i] = tokenId;
@@ -191,14 +204,17 @@ contract NFTCollection is ERC721, ERC721URIStorage, ERC721Enumerable, Ownable, R
      * @param tokenId Token ID
      * @param royaltyBps Royalty in basis points
      */
-    function setTokenRoyalty(uint256 tokenId, uint256 royaltyBps) external onlyOwner {
+    function setTokenRoyalty(
+        uint256 tokenId,
+        uint256 royaltyBps
+    ) external onlyOwner {
         if (_ownerOf(tokenId) == address(0)) {
             revert TokenDoesNotExist();
         }
         if (royaltyBps > 1000) {
             revert InvalidRoyaltyPercentage();
         }
-        
+
         tokenRoyalties[tokenId] = royaltyBps;
         emit RoyaltySet(tokenId, royaltyBps);
     }
@@ -230,7 +246,9 @@ contract NFTCollection is ERC721, ERC721URIStorage, ERC721Enumerable, Ownable, R
      * @return creator Creator address
      * @return royaltyBps Royalty in basis points
      */
-    function getTokenRoyalty(uint256 tokenId) external view returns (address creator, uint256 royaltyBps) {
+    function getTokenRoyalty(
+        uint256 tokenId
+    ) external view returns (address creator, uint256 royaltyBps) {
         if (_ownerOf(tokenId) == address(0)) {
             revert TokenDoesNotExist();
         }
@@ -240,14 +258,18 @@ contract NFTCollection is ERC721, ERC721URIStorage, ERC721Enumerable, Ownable, R
     /**
      * @dev Returns collection statistics
      */
-    function getCollectionStats() external view returns (
-        uint256 totalSupply_,
-        uint256 totalMinted_,
-        uint256 maxSupply_,
-        address creator,
-        string memory description_,
-        string memory externalUrl_
-    ) {
+    function getCollectionStats()
+        external
+        view
+        returns (
+            uint256 totalSupply_,
+            uint256 totalMinted_,
+            uint256 maxSupply_,
+            address creator,
+            string memory description_,
+            string memory externalUrl_
+        )
+    {
         return (
             totalSupply(),
             _currentTokenId - 1,
@@ -261,7 +283,9 @@ contract NFTCollection is ERC721, ERC721URIStorage, ERC721Enumerable, Ownable, R
     /**
      * @dev See {IERC165-supportsInterface}
      */
-    function supportsInterface(bytes4 interfaceId)
+    function supportsInterface(
+        bytes4 interfaceId
+    )
         public
         view
         virtual
@@ -274,30 +298,30 @@ contract NFTCollection is ERC721, ERC721URIStorage, ERC721Enumerable, Ownable, R
     /**
      * @dev See {ERC721-_update}
      */
-    function _update(address to, uint256 tokenId, address auth)
-        internal
-        virtual
-        override(ERC721, ERC721Enumerable)
-        returns (address)
-    {
+    function _update(
+        address to,
+        uint256 tokenId,
+        address auth
+    ) internal virtual override(ERC721, ERC721Enumerable) returns (address) {
         return super._update(to, tokenId, auth);
     }
 
     /**
      * @dev See {ERC721-_increaseBalance}
      */
-    function _increaseBalance(address account, uint128 value)
-        internal
-        virtual
-        override(ERC721, ERC721Enumerable)
-    {
+    function _increaseBalance(
+        address account,
+        uint128 value
+    ) internal virtual override(ERC721, ERC721Enumerable) {
         super._increaseBalance(account, value);
     }
 
     /**
      * @dev See {ERC721-tokenURI}
      */
-    function tokenURI(uint256 tokenId)
+    function tokenURI(
+        uint256 tokenId
+    )
         public
         view
         virtual

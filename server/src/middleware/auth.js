@@ -1,5 +1,5 @@
 import JWTUtils from '../utils/jwt.js';
-import User from '../models/User.js';
+import UserModel from '../models/user.model.js';
 import { AuthFailureError } from '../core/error.response.js';
 
 // Middleware to authenticate JWT token
@@ -15,7 +15,7 @@ const authenticateToken = async (req, res, next) => {
     const decoded = JWTUtils.verifyToken(token);
 
     // Get user from database
-    const user = await User.findById(decoded.id);
+    const user = await UserModel.findById(decoded.id);
     if (!user) {
       throw AuthFailureError('User not found');
     }
@@ -31,11 +31,12 @@ const authenticateToken = async (req, res, next) => {
 
 // Middleware to check if user is authenticated via session (for OAuth)
 const requireAuth = (req, res, next) => {
+  console.log('requireAuth middleware invoked', req.isAuthenticated());
   if (req.isAuthenticated()) {
     return next();
   }
 
-  return AuthFailureError('Please log in to access this resource');
+  next(new AuthFailureError('Please log in to access this resource'));
 };
 
 // Optional authentication middleware (doesn't fail if no token)
@@ -46,7 +47,7 @@ const optionalAuth = async (req, res, next) => {
 
     if (token) {
       const decoded = JWTUtils.verifyToken(token);
-      const user = await User.findById(decoded.id);
+      const user = await UserModel.findById(decoded.id);
       req.user = user;
     }
 
@@ -57,7 +58,7 @@ const optionalAuth = async (req, res, next) => {
   }
 };
 
-export  {
+export {
   authenticateToken,
   requireAuth,
   optionalAuth
