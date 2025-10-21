@@ -7,6 +7,10 @@ const dev = {
     username: process.env.DEV_DB_USERNAME || "root",
     password: process.env.DEV_DB_PASSWORD || "",
     nameDb: process.env.DEV_DB_NAME,
+    ssl: {
+      require: true,
+      rejectUnauthorized: process.env.SSL_REJECT_UNAUTHORIZED !== 'false',
+    }
   },
 };
 
@@ -17,6 +21,11 @@ const product = {
     username: process.env.PRO_DB_USERNAME,
     password: process.env.PRO_DB_PASSWORD,
     nameDb: process.env.PRO_DB_NAME,
+    ssl: {
+      require: true,
+      rejectUnauthorized: process.env.SSL_REJECT_UNAUTHORIZED !== 'false',
+      ca: process.env.SSL_CA, // Optional: CA certificate path
+    }
   },
 };
 

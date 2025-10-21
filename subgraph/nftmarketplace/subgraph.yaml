@@ -10,7 +10,6 @@ dataSources:
     source:
       address: "0xf8193f98d3e155Db55AE30FC94218cee33f1A565"
       abi: MarketplaceFeeManager
-      startBlock: 10
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.9
@@ -48,7 +47,6 @@ dataSources:
     source:
       address: "0x39d550b5F2D18A60d226c8Ec71FDe6978b7B9A66"
       abi: NFTCollectionFactory
-      startBlock: 11
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.9
@@ -87,7 +85,6 @@ dataSources:
     source:
       address: "0x632fbDf7c2ab0685514eADF8e42FA4CC4afE38bA"
       abi: Marketplace
-      startBlock: 12
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.9

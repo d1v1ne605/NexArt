@@ -1,24 +1,22 @@
 import jwt from 'jsonwebtoken';
-import config from '../config/config.js';
+import config from '../config/config.common.js';
+import { BadRequestError } from '../core/error.response.js';
 
 class JWTUtils {
-  // Generate JWT token
   generateToken(payload) {
     return jwt.sign(payload, config.jwt.secret, {
       expiresIn: config.jwt.expiresIn
     });
   }
 
-  // Verify JWT token
   verifyToken(token) {
     try {
       return jwt.verify(token, config.jwt.secret);
     } catch (error) {
-      throw new Error('Invalid or expired token');
+      throw new BadRequestError('Invalid or expired token');
     }
   }
 
-  // Generate access token for user
   generateAccessToken(user) {
     const payload = {
       id: user.id,
@@ -30,7 +28,6 @@ class JWTUtils {
     return this.generateToken(payload);
   }
 
-  // Generate refresh token
   generateRefreshToken(user) {
     const payload = {
       id: user.id,
@@ -38,17 +35,34 @@ class JWTUtils {
     };
 
     return jwt.sign(payload, config.jwt.secret, {
-      expiresIn: '30d' // Refresh token lasts longer
+      expiresIn: '30d'
     });
   }
 
-  // Extract token from request header
-  extractTokenFromHeader(authHeader) {
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+  extractTokenFromCookie(cookieHeader) {
+    if (!cookieHeader) {
       return null;
     }
 
-    return authHeader.substring(7); // Remove 'Bearer ' prefix
+    // Parse cookies from header
+    const cookies = {};
+    cookieHeader.split(';').forEach(cookie => {
+      const [name, value] = cookie.trim().split('=');
+      if (name && value) {
+        cookies[name] = decodeURIComponent(value);
+      }
+    });
+
+    const accessToken = cookies.accessToken;
+    if (!accessToken) {
+      return null;
+    }
+
+    if (accessToken.startsWith('Bearer ')) {
+      return accessToken.substring(7);
+    }
+
+    return accessToken;
   }
 }
 

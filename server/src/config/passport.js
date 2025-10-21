@@ -1,7 +1,7 @@
 import passport from 'passport';
 import GoogleStrategy from 'passport-google-oauth20';
-import config from './config.js';
-import User from '../models/User.js';
+import config from './config.common.js';
+import UserModel from '../models/user.model.js';
 
 // Serialize user for session
 passport.serializeUser((user, done) => {
@@ -11,7 +11,7 @@ passport.serializeUser((user, done) => {
 // Deserialize user from session
 passport.deserializeUser(async (id, done) => {
   try {
-    const user = await User.findById(id);
+    const user = await UserModel.findById(id);
     done(null, user);
   } catch (error) {
     done(error, null);
@@ -25,33 +25,26 @@ passport.use(new GoogleStrategy({
   callbackURL: config.google.callbackURL
 }, async (accessToken, refreshToken, profile, done) => {
   try {
-    // Check if user already exists
-    let existingUser = await User.findByGoogleId(profile.id);
+    let existingUser = await UserModel.findByProviderId('google', profile.id);
 
     if (existingUser) {
-      // User exists, update their information
-      existingUser = await User.updateUser(existingUser.id, {
-        name: profile.displayName,
+      existingUser = await UserModel.updateUser(existingUser.id, {
+        username: profile.displayName,
         email: profile.emails[0].value,
-        avatar: profile.photos[0].value,
-        accessToken,
-        refreshToken,
-        lastLogin: new Date()
+        avatar_url: profile.photos[0].value,
+        last_login: new Date()
       });
       return done(null, existingUser);
     }
 
-    // Create new user
-    const newUser = await User.create({
-      googleId: profile.id,
-      name: profile.displayName,
+    const newUser = await UserModel.createUser({
+      provider_id: profile.id,
+      username: profile.displayName,
       email: profile.emails[0].value,
-      avatar: profile.photos[0].value,
-      accessToken,
-      refreshToken,
+      avatar_url: profile.photos[0].value,
       provider: 'google',
       createdAt: new Date(),
-      lastLogin: new Date()
+      last_login: new Date()
     });
 
     done(null, newUser);

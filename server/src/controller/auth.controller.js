@@ -1,7 +1,6 @@
 import passport from 'passport';
 import JWTUtils from '../utils/jwt.js';
-import User from '../models/User.js';
-import config from '../config/config.js';
+import config from '../config/config.common.js';
 import { OK, SuccessResponse } from '../core/success.response.js';
 import { AuthFailureError, ErrorResponse } from '../core/error.response.js';
 
@@ -22,23 +21,24 @@ class AuthController {
                 throw new AuthFailureError('Google OAuth failed');
             }
 
-            // Log the user in
             req.logIn(user, (err) => {
                 if (err) {
                     throw new AuthFailureError('Login failed');
                 }
 
-                // Generate JWT token
                 const token = JWTUtils.generateAccessToken(user);
 
-                // Set secure cookies
-                res.cookie('accessToken', token, {
+                res.cookie('accessToken', 'Bearer ' + token, {
                     httpOnly: true,
                     secure: config.nodeEnv === 'production',
                     sameSite: 'lax',
-                    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+                    maxAge: 3 * 24 * 60 * 60 * 1000 // 3 days
                 });
 
+                new OK({
+                    message: 'User logged in successfully',
+                    metadata: { user: user }
+                }).send(res);
                 // return to client with success
                 // new OK({
                 //     message: 'User logged in successfully',
@@ -50,7 +50,6 @@ class AuthController {
         })(req, res, next);
     };
 
-    // Get current user
     getCurrentUser = async (req, res) => {
         try {
             if (!req.user) {
@@ -76,20 +75,17 @@ class AuthController {
         }
     };
 
-    // Logout user
     logout = async (req, res) => {
         try {
             // Clear session
             req.logout((err) => {
                 if (err) {
-                    console.error('Logout error:', err);
+                    throw new ErrorResponse('Failed to logout');
                 }
             });
 
-            // Clear cookies
             res.clearCookie('accessToken');
-            res.clearCookie('refreshToken');
-            res.clearCookie('connect.sid'); // Clear session cookie
+            res.clearCookie('connect.sid');
 
             new SuccessResponse({
                 message: 'User logged out successfully'
@@ -99,7 +95,6 @@ class AuthController {
         }
     };
 
-    // Check authentication status
     checkAuth = async (req, res) => {
         try {
             const isAuthenticated = req.isAuthenticated() || !!req.user;
@@ -119,6 +114,7 @@ class AuthController {
                 }).send(res);
             } else {
                 new SuccessResponse({
+                    statusCode: 401,
                     message: 'User is not authenticated',
                     metadata: { authenticated: false }
                 }).send(res);

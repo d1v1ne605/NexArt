@@ -13,7 +13,7 @@ import routes from "./routes/index.js"
 dotenv.config()
 
 // Import configurations
-import config from './config/config.js'
+import config from './config/config.common.js'
 import passport from './config/passport.js'
 
 // Create Express app
@@ -81,27 +81,11 @@ app.use("/v1/api", routes);
 // handling errors
 app.use((error, req, res, next) => {
   const statusCode = error.status || 500;
-  const resMessage = `${error.status} - ${Date.now() - error.now}ms - Response: ${JSON.stringify(error)}`
-  // myLogger.error(resMessage, [
-  //   req.path,
-  //   {
-  //     requestId: req.requestId
-  //   },
-  //   {
-  //     message: error.message
-  //   }
-  // ])
-  console.error(resMessage, {
-    path: req.path,
-    requestId: req.requestId,
-    stack: error.stack
-  });
-
   return res.status(statusCode).json({
     status: "error",
     code: statusCode,
     message: error.message || "Internal Server Error",
-    file: error.stack.split('\n')
+    file: process.env.NODE_ENV === 'dev' ? error.stack.split('\n') : undefined,
   });
 });
 

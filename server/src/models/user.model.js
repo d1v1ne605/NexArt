@@ -16,11 +16,12 @@ const User = sequelize.define("User", {
     },
     wallet_address: {
         type: DataTypes.STRING(42),
-        allowNull: false,
+        allowNull: true,
         unique: true,
         validate: {
             isEthereumAddress(value) {
-                if (!isAddress(value)) {
+                // Only validate if value exists
+                if (value && !isAddress(value)) {
                     throw new Error('Invalid Ethereum wallet address');
                 }
             }
@@ -33,7 +34,6 @@ const User = sequelize.define("User", {
         validate: {
             len: [3, 50],
             notEmpty: true,
-            is: /^[a-zA-Z0-9_]+$/i // Only alphanumeric and underscore
         },
         comment: "Unique username for the user"
     },
@@ -138,6 +138,15 @@ User.prototype.updateLastLogin = async function () {
 };
 
 // Class methods
+User.findById = async function (id) {
+    return await this.findOne({
+        where: {
+            id,
+            is_active: true
+        }
+    });
+};
+
 User.findByWalletAddress = async function (walletAddress) {
     return await this.findOne({
         where: {
@@ -165,14 +174,33 @@ User.findByEmail = async function (email) {
     });
 };
 
-User.findByGoogleId = async function (googleId) {
+User.findByProviderId = async function (provider, providerId) {
     return await this.findOne({
         where: {
-            provider: 'google',
-            provider_id: googleId,
+            provider: provider,
+            provider_id: providerId,
             is_active: true
         }
     });
 };
+
+User.updateUser = async function (id, updateData) {
+    const user = await this.findById(id);
+    if (!user) {
+        throw new Error('User not found');
+    }
+
+    Object.keys(updateData).forEach(key => {
+        user[key] = updateData[key];
+    });
+
+    await user.save();
+    return user;
+}
+
+User.createUser = async function (userData) {
+    const user = await this.create(userData);
+    return user;
+}
 
 export default User;

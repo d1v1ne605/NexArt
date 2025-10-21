@@ -1,16 +1,16 @@
 {
   "localhost": {
     "MarketplaceFeeManager": {
-      "address": "0xCD3e96AaE2B3BDaAb3B4893a67dF1580f051A20E",
-      "startBlock": 10
+      "address": "0x0Ff0b4da5e195b152524b9B977F130e7033126F7",
+      "startBlock": 22
     },
     "NFTCollectionFactory": {
-      "address": "0xBCd650aa5eF13115a3113e6D98B8ab8dB127beE1",
-      "startBlock": 11
+      "address": "0x9E6970a031e49ad6FBb3454184080619feFC9abC",
+      "startBlock": 23
     },
     "Marketplace": {
-      "address": "0xccc33E23199E1bD58f3cD9b8740539810a8a6a0c",
-      "startBlock": 12
+      "address": "0x8b755940d5328746b75E12C0537c5D338a9961f0",
+      "startBlock": 24
     }
   }
 }

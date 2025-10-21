@@ -1,12 +1,12 @@
 import JWTUtils from '../utils/jwt.js';
-import User from '../models/User.js';
+import UserModel from '../models/user.model.js';
 import { AuthFailureError } from '../core/error.response.js';
 
 // Middleware to authenticate JWT token
 const authenticateToken = async (req, res, next) => {
   try {
-    const authHeader = req.headers['authorization'];
-    const token = JWTUtils.extractTokenFromHeader(authHeader);
+    const cookieHeader = req.headers['cookie'];
+    const token = JWTUtils.extractTokenFromCookie(cookieHeader);
 
     if (!token) {
       throw new AuthFailureError('Access token required');
@@ -14,13 +14,11 @@ const authenticateToken = async (req, res, next) => {
 
     const decoded = JWTUtils.verifyToken(token);
 
-    // Get user from database
-    const user = await User.findById(decoded.id);
+    const user = await UserModel.findById(decoded.id);
     if (!user) {
       throw new AuthFailureError('User not found');
     }
 
-    // Attach user to request object
     req.user = user;
     next();
   } catch (error) {
@@ -29,24 +27,15 @@ const authenticateToken = async (req, res, next) => {
   }
 };
 
-// Middleware to check if user is authenticated via session (for OAuth)
-const requireAuth = (req, res, next) => {
-  if (req.isAuthenticated()) {
-    return next();
-  }
-
-  return new AuthFailureError('Please log in to access this resource');
-};
-
 // Optional authentication middleware (doesn't fail if no token)
 const optionalAuth = async (req, res, next) => {
   try {
-    const authHeader = req.headers['authorization'];
-    const token = JWTUtils.extractTokenFromHeader(authHeader);
+    const cookieHeader = req.headers['cookie'];
+    const token = JWTUtils.extractTokenFromCookie(cookieHeader);
 
     if (token) {
       const decoded = JWTUtils.verifyToken(token);
-      const user = await User.findById(decoded.id);
+      const user = await UserModel.findById(decoded.id);
       req.user = user;
     }
 
@@ -59,6 +48,5 @@ const optionalAuth = async (req, res, next) => {
 
 export {
   authenticateToken,
-  requireAuth,
   optionalAuth
 };

@@ -353,7 +353,7 @@ decodeFunctionResult(functionFragment: 'updateCollectionInfo', data: BytesLike):
 
     
     mintNFT: TypedContractMethod<
-      [to: AddressLike, _tokenURI: string, royaltyBps: BigNumberish, ],
+      [to: AddressLike, ipfsCID: string, royaltyBps: BigNumberish, ],
       [bigint],
       'nonpayable'
     >
@@ -610,7 +610,7 @@ getFunction(nameOrSignature: 'maxSupply'): TypedContractMethod<
       'view'
     >;
 getFunction(nameOrSignature: 'mintNFT'): TypedContractMethod<
-      [to: AddressLike, _tokenURI: string, royaltyBps: BigNumberish, ],
+      [to: AddressLike, ipfsCID: string, royaltyBps: BigNumberish, ],
       [bigint],
       'nonpayable'
     >;

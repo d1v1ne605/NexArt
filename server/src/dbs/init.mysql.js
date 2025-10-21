@@ -3,7 +3,7 @@
 import { Sequelize } from "sequelize";
 import config from "../config/config.mysql.js";
 
-const { username, password, nameDb, host, port } = config.db;
+const { username, password, nameDb, host, port, ssl } = config.db;
 
 class Database {
     constructor() {
@@ -17,6 +17,9 @@ class Database {
                 host: host || "localhost",
                 port: port || 3306,
                 dialect: "mysql",
+                dialectOptions: {
+                    ssl: ssl
+                },
                 logging: console.log,
                 pool: {
                     max: 50,
