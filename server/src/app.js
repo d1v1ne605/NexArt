@@ -48,10 +48,10 @@ app.use(cors(config.cors));
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(
-    express.urlencoded({
-        extended: true,
-        limit: '10mb'
-    })
+  express.urlencoded({
+    extended: true,
+    limit: '10mb'
+  })
 );
 
 // Cookie parsing middleware
@@ -81,12 +81,11 @@ app.use("/v1/api", routes);
 // handling errors
 app.use((error, req, res, next) => {
   const statusCode = error.status || 500;
-  const resMessage = `${error.status} - ${Date.now() - error.now}ms - Response: ${JSON.stringify(error)}`
   return res.status(statusCode).json({
     status: "error",
     code: statusCode,
     message: error.message || "Internal Server Error",
-    file: error.stack.split('\n')
+    file: process.env.NODE_ENV === 'dev' ? error.stack.split('\n') : undefined,
   });
 });
 

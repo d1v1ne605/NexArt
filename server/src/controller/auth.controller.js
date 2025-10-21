@@ -21,24 +21,20 @@ class AuthController {
                 throw new AuthFailureError('Google OAuth failed');
             }
 
-            // Log the user in
             req.logIn(user, (err) => {
                 if (err) {
                     throw new AuthFailureError('Login failed');
                 }
 
-                // Generate JWT token
                 const token = JWTUtils.generateAccessToken(user);
 
-                // Set secure cookies
-                res.cookie('accessToken', token, {
+                res.cookie('accessToken', 'Bearer ' + token, {
                     httpOnly: true,
                     secure: config.nodeEnv === 'production',
                     sameSite: 'lax',
                     maxAge: 3 * 24 * 60 * 60 * 1000 // 3 days
                 });
 
-                // return to client with success
                 new OK({
                     message: 'User logged in successfully',
                     metadata: { user: user }
@@ -47,7 +43,6 @@ class AuthController {
         })(req, res, next);
     };
 
-    // Get current user
     getCurrentUser = async (req, res) => {
         try {
             if (!req.user) {
@@ -73,18 +68,15 @@ class AuthController {
         }
     };
 
-    // Logout user
     logout = async (req, res) => {
-        console.log('Logging out user:', req.user ? req.user.id : 'Unknown');
         try {
             // Clear session
             req.logout((err) => {
                 if (err) {
-                    console.error('Logout error:', err);
+                    throw new ErrorResponse('Failed to logout');
                 }
             });
 
-            // Clear cookies
             res.clearCookie('accessToken');
             res.clearCookie('connect.sid');
 
@@ -96,7 +88,6 @@ class AuthController {
         }
     };
 
-    // Check authentication status
     checkAuth = async (req, res) => {
         try {
             const isAuthenticated = req.isAuthenticated() || !!req.user;
@@ -116,6 +107,7 @@ class AuthController {
                 }).send(res);
             } else {
                 new SuccessResponse({
+                    statusCode: 401,
                     message: 'User is not authenticated',
                     metadata: { authenticated: false }
                 }).send(res);

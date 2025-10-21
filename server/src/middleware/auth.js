@@ -5,22 +5,20 @@ import { AuthFailureError } from '../core/error.response.js';
 // Middleware to authenticate JWT token
 const authenticateToken = async (req, res, next) => {
   try {
-    const authHeader = req.headers['authorization'];
-    const token = JWTUtils.extractTokenFromHeader(authHeader);
+    const cookieHeader = req.headers['cookie'];
+    const token = JWTUtils.extractTokenFromCookie(cookieHeader);
 
     if (!token) {
-      throw AuthFailureError('Access token required');
+      throw new AuthFailureError('Access token required');
     }
 
     const decoded = JWTUtils.verifyToken(token);
 
-    // Get user from database
     const user = await UserModel.findById(decoded.id);
     if (!user) {
-      throw AuthFailureError('User not found');
+      throw new AuthFailureError('User not found');
     }
 
-    // Attach user to request object
     req.user = user;
     next();
   } catch (error) {
@@ -29,21 +27,11 @@ const authenticateToken = async (req, res, next) => {
   }
 };
 
-// Middleware to check if user is authenticated via session (for OAuth)
-const requireAuth = (req, res, next) => {
-  console.log('requireAuth middleware invoked', req.isAuthenticated());
-  if (req.isAuthenticated()) {
-    return next();
-  }
-
-  next(new AuthFailureError('Please log in to access this resource'));
-};
-
 // Optional authentication middleware (doesn't fail if no token)
 const optionalAuth = async (req, res, next) => {
   try {
-    const authHeader = req.headers['authorization'];
-    const token = JWTUtils.extractTokenFromHeader(authHeader);
+    const cookieHeader = req.headers['cookie'];
+    const token = JWTUtils.extractTokenFromCookie(cookieHeader);
 
     if (token) {
       const decoded = JWTUtils.verifyToken(token);
@@ -60,6 +48,5 @@ const optionalAuth = async (req, res, next) => {
 
 export {
   authenticateToken,
-  requireAuth,
   optionalAuth
 };

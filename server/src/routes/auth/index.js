@@ -1,8 +1,7 @@
 import express from 'express';
 const router = express.Router();
 import authController from '../../controller/auth.controller.js';
-import { authenticateToken, requireAuth, optionalAuth } from '../../middleware/auth.js';
-import { asyncHandler } from "../../helpers/asyncHandler.js"
+import { authenticateToken, optionalAuth } from '../../middleware/auth.js';
 
 // @route   GET /auth/google
 // @desc    Initiate Google OAuth
@@ -17,7 +16,7 @@ router.get('/google/callback', authController.googleCallback);
 // @route   POST /auth/logout
 // @desc    Logout user
 // @access  Private
-router.post('/logout', requireAuth, authController.logout);
+router.post('/logout', authenticateToken, authController.logout);
 
 // @route   GET /auth/me
 // @desc    Get current user
