@@ -9,7 +9,7 @@ const authenticateToken = async (req, res, next) => {
     const token = JWTUtils.extractTokenFromHeader(authHeader);
 
     if (!token) {
-      throw AuthFailureError('Access token required');
+      throw new AuthFailureError('Access token required');
     }
 
     const decoded = JWTUtils.verifyToken(token);
@@ -17,7 +17,7 @@ const authenticateToken = async (req, res, next) => {
     // Get user from database
     const user = await User.findById(decoded.id);
     if (!user) {
-      throw AuthFailureError('User not found');
+      throw new AuthFailureError('User not found');
     }
 
     // Attach user to request object
@@ -35,7 +35,7 @@ const requireAuth = (req, res, next) => {
     return next();
   }
 
-  return AuthFailureError('Please log in to access this resource');
+  return new AuthFailureError('Please log in to access this resource');
 };
 
 // Optional authentication middleware (doesn't fail if no token)
@@ -57,7 +57,7 @@ const optionalAuth = async (req, res, next) => {
   }
 };
 
-export  {
+export {
   authenticateToken,
   requireAuth,
   optionalAuth

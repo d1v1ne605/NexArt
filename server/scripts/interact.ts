@@ -39,9 +39,8 @@ const generateRandomName = (): string => {
     "Tales",
     "Dreams",
   ];
-  return `${adjectives[Math.floor(Math.random() * adjectives.length)]} ${
-    nouns[Math.floor(Math.random() * nouns.length)]
-  }`;
+  return `${adjectives[Math.floor(Math.random() * adjectives.length)]} ${nouns[Math.floor(Math.random() * nouns.length)]
+    }`;
 };
 
 const generateRandomSymbol = (): string => {
@@ -549,8 +548,7 @@ async function viewFactoryStats() {
     console.log(`💰 Deployment Fee: ${formatEther(deploymentFee)} ETH`);
     console.log(`🏦 Fee Recipient: ${feeRecipient}`);
     console.log(
-      `📈 Max Collections Per Creator: ${
-        maxCollectionsPerCreator === 0n ? "Unlimited" : maxCollectionsPerCreator
+      `📈 Max Collections Per Creator: ${maxCollectionsPerCreator === 0n ? "Unlimited" : maxCollectionsPerCreator
       }`
     );
 

@@ -40,10 +40,12 @@ class AuthController {
                 });
 
                 // return to client with success
-                new OK({
-                    message: 'User logged in successfully',
-                    metadata: { user: user }
-                }).send(res);
+                // new OK({
+                //     message: 'User logged in successfully',
+                //     metadata: { user: user }
+                // }).send(res);
+                res.redirect(`${config.clientUrl}/auth/success`);
+
             });
         })(req, res, next);
     };

@@ -1,6 +1,6 @@
 import { network } from "hardhat";
 import "dotenv/config";
-const { ethers } = await network.connect(process.env.NETWORK||"");
+const { ethers } = await network.connect(process.env.NETWORK || "");
 
 /**
  * @notice Deploys the NFT Marketplace system contracts in correct order.

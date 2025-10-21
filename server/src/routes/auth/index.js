@@ -2,7 +2,6 @@ import express from 'express';
 const router = express.Router();
 import authController from '../../controller/auth.controller.js';
 import { authenticateToken, requireAuth, optionalAuth } from '../../middleware/auth.js';
-import { asyncHandler } from "../../helpers/asyncHandler.js"
 
 // @route   GET /auth/google
 // @desc    Initiate Google OAuth
