@@ -402,12 +402,14 @@ async function createRandomCollection() {
     const symbol = generateRandomSymbol();
     const description = generateRandomDescription();
     const baseURI = "https://api.nexart.com/collections/";
+    const avatarCollection = `https://avatar.nexart.com/collections/${name}`;
     const maxSupply = Math.floor(Math.random() * 1000) + 100; // 100-1100
 
     console.log(`📝 Collection Details:`);
     console.log(`   Name: ${name}`);
     console.log(`   Symbol: ${symbol}`);
     console.log(`   Description: ${description}`);
+    console.log(`   Avatar Collection: ${avatarCollection}`);
     console.log(`   Max Supply: ${maxSupply}`);
     console.log(`   Base URI: ${baseURI}`);
 
@@ -422,6 +424,7 @@ async function createRandomCollection() {
       baseURI,
       maxSupply,
       description,
+      avatarCollection,
     };
 
     const tx = await nftCollectionFactory.createCollection(params, {
@@ -724,8 +727,9 @@ async function viewCollectionStats() {
       totalMinted,
       maxSupply,
       creator,
+      avatarCollection,
       description,
-      externalUrl,
+      externalUrl
     ] = await nftCollection.getCollectionStats();
     const name = await nftCollection.name();
     const symbol = await nftCollection.symbol();
@@ -733,6 +737,7 @@ async function viewCollectionStats() {
     console.log(`📊 Collection: ${name} (${symbol})`);
     console.log(`📍 Address: ${collectionAddress}`);
     console.log(`👤 Creator: ${creator}`);
+    console.log(`👤 Avatar Collection: ${avatarCollection}`);
     console.log(`📝 Description: ${description}`);
     console.log(`🔗 External URL: ${externalUrl}`);
     console.log(`📈 Total Supply: ${totalSupply}`);

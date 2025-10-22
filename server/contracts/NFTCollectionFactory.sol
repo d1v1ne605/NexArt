@@ -47,6 +47,8 @@ contract NFTCollectionFactory is Ownable, ReentrancyGuard, Pausable {
     event CollectionCreated(
         address indexed collection,
         address indexed creator,
+        string avatarCollection,
+        string description,
         string name,
         string symbol,
         uint256 maxSupply
@@ -64,6 +66,7 @@ contract NFTCollectionFactory is Ownable, ReentrancyGuard, Pausable {
         string baseURI;
         uint256 maxSupply;
         string description;
+        string avatarCollection;
     }
 
     /**
@@ -113,7 +116,8 @@ contract NFTCollectionFactory is Ownable, ReentrancyGuard, Pausable {
             params.baseURI,
             msg.sender,
             params.maxSupply,
-            params.description
+            params.description,
+            params.avatarCollection
         ) returns (NFTCollection newCollection) {
             collection = address(newCollection);
         } catch {
@@ -138,6 +142,8 @@ contract NFTCollectionFactory is Ownable, ReentrancyGuard, Pausable {
         emit CollectionCreated(
             collection,
             msg.sender,
+            params.avatarCollection,
+            params.description,
             params.name,
             params.symbol,
             params.maxSupply
@@ -172,7 +178,8 @@ contract NFTCollectionFactory is Ownable, ReentrancyGuard, Pausable {
             params.baseURI,
             creator,
             params.maxSupply,
-            params.description
+            params.description,
+            params.avatarCollection
         ) returns (NFTCollection newCollection) {
             collection = address(newCollection);
         } catch {
@@ -187,6 +194,8 @@ contract NFTCollectionFactory is Ownable, ReentrancyGuard, Pausable {
         emit CollectionCreated(
             collection,
             creator,
+            params.avatarCollection,
+            params.description,
             params.name,
             params.symbol,
             params.maxSupply

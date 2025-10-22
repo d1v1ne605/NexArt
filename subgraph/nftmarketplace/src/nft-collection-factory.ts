@@ -23,6 +23,8 @@ export function handleCollectionCreated(event: CollectionCreatedEvent): void {
   )
   entity.collection = event.params.collection
   entity.creator = event.params.creator
+  entity.avatarCollection = event.params.avatarCollection
+  entity.description = event.params.description
   entity.name = event.params.name
   entity.symbol = event.params.symbol
   entity.maxSupply = event.params.maxSupply

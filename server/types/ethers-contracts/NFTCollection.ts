@@ -6,11 +6,12 @@ import type { TypedContractEvent, TypedDeferredTopicFilter, TypedEventLog, Typed
   
 
   export interface NFTCollectionInterface extends Interface {
-    getFunction(nameOrSignature: "approve" | "balanceOf" | "batchMintNFT" | "burn" | "description" | "externalUrl" | "getApproved" | "getCollectionStats" | "getTokenRoyalty" | "isApprovedForAll" | "maxSupply" | "mintNFT" | "name" | "owner" | "ownerOf" | "pause" | "paused" | "renounceOwnership" | "safeTransferFrom(address,address,uint256)" | "safeTransferFrom(address,address,uint256,bytes)" | "setApprovalForAll" | "setBaseURI" | "setTokenRoyalty" | "supportsInterface" | "symbol" | "tokenByIndex" | "tokenCreators" | "tokenOfOwnerByIndex" | "tokenRoyalties" | "tokenURI" | "totalMinted" | "totalSupply" | "transferFrom" | "transferOwnership" | "unpause" | "updateCollectionInfo"): FunctionFragment;
+    getFunction(nameOrSignature: "approve" | "avatarCollection" | "balanceOf" | "batchMintNFT" | "burn" | "description" | "externalUrl" | "getApproved" | "getCollectionStats" | "getTokenRoyalty" | "isApprovedForAll" | "maxSupply" | "mintNFT" | "name" | "owner" | "ownerOf" | "pause" | "paused" | "renounceOwnership" | "safeTransferFrom(address,address,uint256)" | "safeTransferFrom(address,address,uint256,bytes)" | "setApprovalForAll" | "setBaseURI" | "setTokenRoyalty" | "supportsInterface" | "symbol" | "tokenByIndex" | "tokenCreators" | "tokenOfOwnerByIndex" | "tokenRoyalties" | "tokenURI" | "totalMinted" | "totalSupply" | "transferFrom" | "transferOwnership" | "unpause" | "updateCollectionInfo"): FunctionFragment;
 
     getEvent(nameOrSignatureOrTopic: "Approval" | "ApprovalForAll" | "BaseURIUpdated" | "BatchMetadataUpdate" | "CollectionInfoUpdated" | "MetadataUpdate" | "OwnershipTransferred" | "Paused" | "RoyaltySet" | "TokenMinted" | "Transfer" | "Unpaused"): EventFragment;
 
     encodeFunctionData(functionFragment: 'approve', values: [AddressLike, BigNumberish]): string;
+encodeFunctionData(functionFragment: 'avatarCollection', values?: undefined): string;
 encodeFunctionData(functionFragment: 'balanceOf', values: [AddressLike]): string;
 encodeFunctionData(functionFragment: 'batchMintNFT', values: [AddressLike, string[], BigNumberish]): string;
 encodeFunctionData(functionFragment: 'burn', values: [BigNumberish]): string;
@@ -48,6 +49,7 @@ encodeFunctionData(functionFragment: 'unpause', values?: undefined): string;
 encodeFunctionData(functionFragment: 'updateCollectionInfo', values: [string, string]): string;
 
     decodeFunctionResult(functionFragment: 'approve', data: BytesLike): Result;
+decodeFunctionResult(functionFragment: 'avatarCollection', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'balanceOf', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'batchMintNFT', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'burn', data: BytesLike): Result;
@@ -272,6 +274,14 @@ decodeFunctionResult(functionFragment: 'updateCollectionInfo', data: BytesLike):
     
 
     
+    avatarCollection: TypedContractMethod<
+      [],
+      [string],
+      'view'
+    >
+    
+
+    
     balanceOf: TypedContractMethod<
       [owner: AddressLike, ],
       [bigint],
@@ -322,7 +332,7 @@ decodeFunctionResult(functionFragment: 'updateCollectionInfo', data: BytesLike):
     
     getCollectionStats: TypedContractMethod<
       [],
-      [[bigint, bigint, bigint, string, string, string] & {totalSupply_: bigint, totalMinted_: bigint, maxSupply_: bigint, creator: string, description_: string, externalUrl_: string }],
+      [[bigint, bigint, bigint, string, string, string, string] & {totalSupply_: bigint, totalMinted_: bigint, maxSupply_: bigint, creator: string, avatarCollection_: string, description_: string, externalUrl_: string }],
       'view'
     >
     
@@ -559,6 +569,11 @@ decodeFunctionResult(functionFragment: 'updateCollectionInfo', data: BytesLike):
       [void],
       'nonpayable'
     >;
+getFunction(nameOrSignature: 'avatarCollection'): TypedContractMethod<
+      [],
+      [string],
+      'view'
+    >;
 getFunction(nameOrSignature: 'balanceOf'): TypedContractMethod<
       [owner: AddressLike, ],
       [bigint],
@@ -591,7 +606,7 @@ getFunction(nameOrSignature: 'getApproved'): TypedContractMethod<
     >;
 getFunction(nameOrSignature: 'getCollectionStats'): TypedContractMethod<
       [],
-      [[bigint, bigint, bigint, string, string, string] & {totalSupply_: bigint, totalMinted_: bigint, maxSupply_: bigint, creator: string, description_: string, externalUrl_: string }],
+      [[bigint, bigint, bigint, string, string, string, string] & {totalSupply_: bigint, totalMinted_: bigint, maxSupply_: bigint, creator: string, avatarCollection_: string, description_: string, externalUrl_: string }],
       'view'
     >;
 getFunction(nameOrSignature: 'getTokenRoyalty'): TypedContractMethod<

@@ -61,7 +61,7 @@ dataSources:
         - name: NFTCollectionFactory
           file: ./abis/NFTCollectionFactory.json
       eventHandlers:
-        - event: CollectionCreated(indexed address,indexed address,string,string,uint256)
+        - event: CollectionCreated(indexed address,indexed address,string,string,string,string,uint256)
           handler: handleCollectionCreated
         - event: DeploymentFeeUpdated(uint256,uint256)
           handler: handleDeploymentFeeUpdated
