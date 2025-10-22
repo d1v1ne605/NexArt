@@ -13,3 +13,4 @@ artifacts
 cache
 /subgraph/*/data/*
 !/subgraph/*/data/.gitkeep
+!/server/artifacts/.gitkeep
