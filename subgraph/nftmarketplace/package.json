@@ -2,6 +2,9 @@
   "name": "nftmarketplace",
   "license": "UNLICENSED",
   "scripts": {
+    "update-networks": "node -e \"require('./update-network.js').main()\"",
+    "update-abis": "node -e \"require('./update-network.js').copyABIs()\"",
+    "update-networks-json": "node -e \"require('./update-network.js').updateNetworkJson()\"",
     "codegen": "graph codegen",
     "build": "graph build",
     "deploy": "graph deploy --node https://api.studio.thegraph.com/deploy/ nftmarketplace",
@@ -12,7 +15,10 @@
   },
   "dependencies": {
     "@graphprotocol/graph-cli": "0.98.1",
-    "@graphprotocol/graph-ts": "0.37.0"
+    "@graphprotocol/graph-ts": "0.37.0",
+    "dotenv": "^17.2.3"
   },
-  "devDependencies": { "matchstick-as": "0.6.0" }
+  "devDependencies": {
+    "matchstick-as": "0.6.0"
+  }
 }

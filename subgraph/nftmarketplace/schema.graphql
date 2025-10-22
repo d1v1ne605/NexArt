@@ -65,6 +65,8 @@ type CollectionCreated @entity(immutable: true) {
   id: Bytes!
   collection: Bytes! # address
   creator: Bytes! # address
+  avatarCollection: String! # string
+  description: String # string
   name: String! # string
   symbol: String! # string
   maxSupply: BigInt! # uint256

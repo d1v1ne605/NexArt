@@ -34,6 +34,9 @@ contract NFTCollection is
     /// @dev Collection description
     string public description;
 
+    /// @dev Avatar of this collection
+    string public avatarCollection;
+
     /// @dev Collection external URL
     string public externalUrl;
 
@@ -71,6 +74,7 @@ contract NFTCollection is
      * @param creator_ Address of the collection creator
      * @param maxSupply_ Maximum supply of tokens (0 for unlimited)
      * @param description_ Collection description
+     * @param avatarCollection_ Avatar of this collection
      */
     constructor(
         string memory name_,
@@ -78,12 +82,14 @@ contract NFTCollection is
         string memory baseURI_,
         address creator_,
         uint256 maxSupply_,
-        string memory description_
+        string memory description_,
+        string memory avatarCollection_
     ) ERC721(name_, symbol_) Ownable(creator_) {
         _baseTokenURI = baseURI_;
         maxSupply = maxSupply_;
         description = description_;
         _currentTokenId = 1; // Start from token ID 1
+        avatarCollection = avatarCollection_;
     }
 
     /**
@@ -266,6 +272,7 @@ contract NFTCollection is
             uint256 totalMinted_,
             uint256 maxSupply_,
             address creator,
+            string memory avatarCollection_,
             string memory description_,
             string memory externalUrl_
         )
@@ -275,6 +282,7 @@ contract NFTCollection is
             _currentTokenId - 1,
             maxSupply,
             owner(),
+            avatarCollection,
             description,
             externalUrl
         );

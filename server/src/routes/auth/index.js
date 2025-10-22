@@ -18,11 +18,6 @@ router.get('/google/callback', authController.googleCallback);
 // @access  Private
 router.post('/logout', authenticateToken, authController.logout);
 
-// @route   GET /auth/me
-// @desc    Get current user
-// @access  Private
-router.get('/me', authenticateToken, authController.getCurrentUser);
-
 // @route   GET /auth/check
 // @desc    Check authentication status
 // @access  Public (with optional auth)

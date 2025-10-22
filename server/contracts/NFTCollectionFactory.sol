@@ -47,6 +47,8 @@ contract NFTCollectionFactory is Ownable, ReentrancyGuard, Pausable {
     event CollectionCreated(
         address indexed collection,
         address indexed creator,
+        string avatarCollection,
+        string description,
         string name,
         string symbol,
         uint256 maxSupply
@@ -64,6 +66,7 @@ contract NFTCollectionFactory is Ownable, ReentrancyGuard, Pausable {
         string baseURI;
         uint256 maxSupply;
         string description;
+        string avatarCollection;
     }
 
     /**
@@ -109,6 +112,7 @@ contract NFTCollectionFactory is Ownable, ReentrancyGuard, Pausable {
         }
 
         // Deploy new NFTCollection contract
+<<<<<<< HEAD
         try
             new NFTCollection(
                 params.name,
@@ -119,6 +123,17 @@ contract NFTCollectionFactory is Ownable, ReentrancyGuard, Pausable {
                 params.description
             )
         returns (NFTCollection newCollection) {
+=======
+        try new NFTCollection(
+            params.name,
+            params.symbol,
+            params.baseURI,
+            msg.sender,
+            params.maxSupply,
+            params.description,
+            params.avatarCollection
+        ) returns (NFTCollection newCollection) {
+>>>>>>> de65668cf65a22f399cbbf90e17cfcf4722001af
             collection = address(newCollection);
         } catch {
             revert DeploymentFailed();
@@ -142,6 +157,8 @@ contract NFTCollectionFactory is Ownable, ReentrancyGuard, Pausable {
         emit CollectionCreated(
             collection,
             msg.sender,
+            params.avatarCollection,
+            params.description,
             params.name,
             params.symbol,
             params.maxSupply
@@ -172,6 +189,7 @@ contract NFTCollectionFactory is Ownable, ReentrancyGuard, Pausable {
         }
 
         // Deploy new NFTCollection contract
+<<<<<<< HEAD
         try
             new NFTCollection(
                 params.name,
@@ -182,6 +200,17 @@ contract NFTCollectionFactory is Ownable, ReentrancyGuard, Pausable {
                 params.description
             )
         returns (NFTCollection newCollection) {
+=======
+        try new NFTCollection(
+            params.name,
+            params.symbol,
+            params.baseURI,
+            creator,
+            params.maxSupply,
+            params.description,
+            params.avatarCollection
+        ) returns (NFTCollection newCollection) {
+>>>>>>> de65668cf65a22f399cbbf90e17cfcf4722001af
             collection = address(newCollection);
         } catch {
             revert DeploymentFailed();
@@ -195,6 +224,8 @@ contract NFTCollectionFactory is Ownable, ReentrancyGuard, Pausable {
         emit CollectionCreated(
             collection,
             creator,
+            params.avatarCollection,
+            params.description,
             params.name,
             params.symbol,
             params.maxSupply

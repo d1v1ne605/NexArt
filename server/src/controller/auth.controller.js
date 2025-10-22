@@ -63,7 +63,8 @@ class AuthController {
                 avatar: req.user.avatar,
                 provider: req.user.provider,
                 createdAt: req.user.createdAt,
-                lastLogin: req.user.lastLogin
+                lastLogin: req.user.lastLogin,
+                bio: req.user.bio
             };
 
             new SuccessResponse({
