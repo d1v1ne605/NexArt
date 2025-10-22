@@ -7,9 +7,9 @@ const dev = {
     username: process.env.DEV_DB_USERNAME || "root",
     password: process.env.DEV_DB_PASSWORD || "",
     nameDb: process.env.DEV_DB_NAME,
-    ssl: {
+    ssl: process.env.NODE_ENV === 'dev' ? false : {
       require: true,
-      rejectUnauthorized: process.env.SSL_REJECT_UNAUTHORIZED !== 'false',
+      rejectUnauthorized: false,
     }
   },
 };

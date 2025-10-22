@@ -17,6 +17,7 @@ const User = sequelize.define("User", {
     wallet_address: {
         type: DataTypes.STRING(42),
         allowNull: true,
+        defaultValue: "",
         unique: true,
         validate: {
             isEthereumAddress(value) {

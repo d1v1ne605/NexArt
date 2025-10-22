@@ -35,10 +35,10 @@ class AuthController {
                     maxAge: 3 * 24 * 60 * 60 * 1000 // 3 days
                 });
 
-                new OK({
-                    message: 'User logged in successfully',
-                    metadata: { user: user }
-                }).send(res);
+                // new OK({
+                //     message: 'User logged in successfully',
+                //     metadata: { user: user }
+                // }).send(res);
                 // return to client with success
                 // new OK({
                 //     message: 'User logged in successfully',
