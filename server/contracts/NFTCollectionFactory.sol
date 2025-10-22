@@ -112,18 +112,6 @@ contract NFTCollectionFactory is Ownable, ReentrancyGuard, Pausable {
         }
 
         // Deploy new NFTCollection contract
-<<<<<<< HEAD
-        try
-            new NFTCollection(
-                params.name,
-                params.symbol,
-                params.baseURI,
-                msg.sender,
-                params.maxSupply,
-                params.description
-            )
-        returns (NFTCollection newCollection) {
-=======
         try new NFTCollection(
             params.name,
             params.symbol,
@@ -133,7 +121,6 @@ contract NFTCollectionFactory is Ownable, ReentrancyGuard, Pausable {
             params.description,
             params.avatarCollection
         ) returns (NFTCollection newCollection) {
->>>>>>> de65668cf65a22f399cbbf90e17cfcf4722001af
             collection = address(newCollection);
         } catch {
             revert DeploymentFailed();
@@ -189,18 +176,7 @@ contract NFTCollectionFactory is Ownable, ReentrancyGuard, Pausable {
         }
 
         // Deploy new NFTCollection contract
-<<<<<<< HEAD
-        try
-            new NFTCollection(
-                params.name,
-                params.symbol,
-                params.baseURI,
-                creator,
-                params.maxSupply,
-                params.description
-            )
-        returns (NFTCollection newCollection) {
-=======
+
         try new NFTCollection(
             params.name,
             params.symbol,
@@ -210,7 +186,6 @@ contract NFTCollectionFactory is Ownable, ReentrancyGuard, Pausable {
             params.description,
             params.avatarCollection
         ) returns (NFTCollection newCollection) {
->>>>>>> de65668cf65a22f399cbbf90e17cfcf4722001af
             collection = address(newCollection);
         } catch {
             revert DeploymentFailed();
