@@ -43,32 +43,6 @@ class AuthController {
         })(req, res, next);
     };
 
-    getCurrentUser = async (req, res) => {
-        try {
-            if (!req.user) {
-                throw new AuthFailureError('Not authenticated');
-            }
-
-            const user = {
-                id: req.user.id,
-                name: req.user.name,
-                email: req.user.email,
-                avatar: req.user.avatar,
-                provider: req.user.provider,
-                createdAt: req.user.createdAt,
-                lastLogin: req.user.lastLogin,
-                bio: req.user.bio
-            };
-
-            new SuccessResponse({
-                message: 'User retrieved successfully',
-                metadata: { user }
-            }).send(res);
-        } catch (error) {
-            throw new AuthFailureError('Failed to get user information');
-        }
-    };
-
     logout = async (req, res) => {
         try {
             // Clear session

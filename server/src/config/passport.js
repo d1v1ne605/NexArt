@@ -29,9 +29,7 @@ passport.use(new GoogleStrategy({
 
     if (existingUser) {
       existingUser = await UserModel.updateUser(existingUser.id, {
-        username: profile.displayName,
         email: profile.emails[0].value,
-        avatar_url: profile.photos[0].value,
         last_login: new Date()
       });
       return done(null, existingUser);
