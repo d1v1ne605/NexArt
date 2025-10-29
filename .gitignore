@@ -12,11 +12,5 @@ accounts.text
 cache
 /subgraph/*/data/*
 !/subgraph/*/data/.gitkeep
-<<<<<<< HEAD
-
-#server/artifacts
-#server/cache
-=======
 /server/artifacts/*
 !/server/artifacts/.gitkeep
->>>>>>> 67c5dfdee6757f6166fdf25e86d1eeb2e30eb8ff

@@ -38,7 +38,7 @@ class UserController {
             if (req.body == undefined || Object.keys(req.body).length === 0) {
                 throw new BadRequestError('No data provided for update');
             }
-            
+
             const updateData = {};
             if (req.body.username !== undefined && req.body.username !== '') updateData.username = req.body.username;
             if (req.body.bio !== undefined) updateData.bio = req.body.bio;
