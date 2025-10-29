@@ -48,63 +48,6 @@ class AuthController {
       // Clear session
       req.logout((err) => {
         if (err) {
-          throw new ErrorResponse('Failed to logout');
-        }
-      });
-
-      res.cookie("accessToken", "Bearer " + token, {
-        httpOnly: true,
-        secure: config.nodeEnv === "production",
-        sameSite: "lax",
-        maxAge: 3 * 24 * 60 * 60 * 1000, // 3 days
-      });
-
-      // new OK({
-      //     message: 'User logged in successfully',
-      //     metadata: { user: user }
-      // }).send(res);
-      // return to client with success
-      // new OK({
-      //     message: 'User logged in successfully',
-      //     metadata: { user: user }
-      // }).send(res);
-      res.redirect(`${config.clientUrl}/auth/success`);
-    } catch (error) {
-      throw new ErrorResponse("Failed to logout");
-    }
-  };
-
-  getCurrentUser = async (req, res) => {
-    try {
-      if (!req.user) {
-        throw new AuthFailureError("Not authenticated");
-      }
-
-      const user = {
-        id: req.user.id,
-        name: req.user.name,
-        email: req.user.email,
-        avatar: req.user.avatar,
-        provider: req.user.provider,
-        createdAt: req.user.createdAt,
-        lastLogin: req.user.lastLogin,
-        bio: req.user.bio,
-      };
-
-      new SuccessResponse({
-        message: "User retrieved successfully",
-        metadata: { user },
-      }).send(res);
-    } catch (error) {
-      throw new AuthFailureError("Failed to get user information");
-    }
-  };
-
-  logout = async (req, res) => {
-    try {
-      // Clear session
-      req.logout((err) => {
-        if (err) {
           throw new ErrorResponse("Failed to logout");
         }
       });
