@@ -6,9 +6,9 @@ import type { TypedContractEvent, TypedDeferredTopicFilter, TypedEventLog, Typed
   
 export declare namespace NFTCollectionFactory {
       
-    export type CollectionParamsStruct = {name: string, symbol: string, baseURI: string, maxSupply: BigNumberish, description: string}
+    export type CollectionParamsStruct = {name: string, symbol: string, baseURI: string, maxSupply: BigNumberish, description: string, avatarCollection: string}
 
-    export type CollectionParamsStructOutput = [name: string, symbol: string, baseURI: string, maxSupply: bigint, description: string] & {name: string, symbol: string, baseURI: string, maxSupply: bigint, description: string }
+    export type CollectionParamsStructOutput = [name: string, symbol: string, baseURI: string, maxSupply: bigint, description: string, avatarCollection: string] & {name: string, symbol: string, baseURI: string, maxSupply: bigint, description: string, avatarCollection: string }
   
     }
 
@@ -70,9 +70,9 @@ decodeFunctionResult(functionFragment: 'version', data: BytesLike): Result;
 
   
     export namespace CollectionCreatedEvent {
-      export type InputTuple = [collection: AddressLike, creator: AddressLike, name: string, symbol: string, maxSupply: BigNumberish];
-      export type OutputTuple = [collection: string, creator: string, name: string, symbol: string, maxSupply: bigint];
-      export interface OutputObject {collection: string, creator: string, name: string, symbol: string, maxSupply: bigint };
+      export type InputTuple = [collection: AddressLike, creator: AddressLike, avatarCollection: string, description: string, name: string, symbol: string, maxSupply: BigNumberish];
+      export type OutputTuple = [collection: string, creator: string, avatarCollection: string, description: string, name: string, symbol: string, maxSupply: bigint];
+      export interface OutputObject {collection: string, creator: string, avatarCollection: string, description: string, name: string, symbol: string, maxSupply: bigint };
       export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>
       export type Filter = TypedDeferredTopicFilter<Event>
       export type Log = TypedEventLog<Event>
@@ -512,7 +512,7 @@ getEvent(key: 'Unpaused'): TypedContractEvent<UnpausedEvent.InputTuple, Unpaused
 
     filters: {
       
-      'CollectionCreated(address,address,string,string,uint256)': TypedContractEvent<CollectionCreatedEvent.InputTuple, CollectionCreatedEvent.OutputTuple, CollectionCreatedEvent.OutputObject>;
+      'CollectionCreated(address,address,string,string,string,string,uint256)': TypedContractEvent<CollectionCreatedEvent.InputTuple, CollectionCreatedEvent.OutputTuple, CollectionCreatedEvent.OutputObject>;
       CollectionCreated: TypedContractEvent<CollectionCreatedEvent.InputTuple, CollectionCreatedEvent.OutputTuple, CollectionCreatedEvent.OutputObject>;
     
 

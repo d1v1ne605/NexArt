@@ -1,57 +1,59 @@
-import express from 'express'
-import dotenv from 'dotenv'
-import session from 'express-session'
-import cors from 'cors'
-import helmet from 'helmet'
-import morgan from 'morgan'
-import cookieParser from 'cookie-parser'
+import express from "express";
+import dotenv from "dotenv";
+import session from "express-session";
+import cors from "cors";
+import helmet from "helmet";
+import morgan from "morgan";
+import cookieParser from "cookie-parser";
 
 // Import Route
-import routes from "./routes/index.js"
+import routes from "./routes/index.js";
 
 // Load environment variables
-dotenv.config()
+dotenv.config();
 
 // Import configurations
-import config from './config/config.common.js'
-import passport from './config/passport.js'
+import config from "./config/config.common.js";
+import passport from "./config/passport.js";
 
 // Create Express app
 const app = express();
 
 // Trust proxy (important for production with reverse proxy)
-app.set('trust proxy', 1);
+app.set("trust proxy", 1);
 
 // Security middleware
-app.use(helmet({
-  crossOriginEmbedderPolicy: false,
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      scriptSrc: ["'self'"],
-      imgSrc: ["'self'", "data:", "https:"],
+app.use(
+  helmet({
+    crossOriginEmbedderPolicy: false,
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        scriptSrc: ["'self'"],
+        imgSrc: ["'self'", "data:", "https:"],
+      },
     },
-  },
-}));
+  }),
+);
 
 // Logging middleware
-if (config.nodeEnv === 'development') {
-  app.use(morgan('dev'));
+if (config.nodeEnv === "development") {
+  app.use(morgan("dev"));
 } else {
-  app.use(morgan('combined'));
+  app.use(morgan("combined"));
 }
 
 // CORS middleware
 app.use(cors(config.cors));
 
 // Body parsing middleware
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json({ limit: "10mb" }));
 app.use(
   express.urlencoded({
     extended: true,
-    limit: '10mb'
-  })
+    limit: "10mb",
+  }),
 );
 
 // Cookie parsing middleware
@@ -72,7 +74,7 @@ app.use((req, res, next) => {
 
 // init db
 import "./dbs/init.mysql.js";
-import { syncDatabase } from './models/index.js';
+import { syncDatabase } from "./models/index.js";
 await syncDatabase();
 
 // init routes
@@ -85,7 +87,7 @@ app.use((error, req, res, next) => {
     status: "error",
     code: statusCode,
     message: error.message || "Internal Server Error",
-    file: process.env.NODE_ENV === 'dev' ? error.stack.split('\n') : undefined,
+    file: process.env.NODE_ENV === "dev" ? error.stack.split("\n") : undefined,
   });
 });
 
