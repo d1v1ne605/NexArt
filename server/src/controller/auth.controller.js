@@ -21,12 +21,45 @@ class AuthController {
         throw new AuthFailureError("Google OAuth failed");
       }
 
+<<<<<<< HEAD
       req.logIn(user, (err) => {
         if (err) {
           throw new AuthFailureError("Login failed");
         }
 
         const token = JWTUtils.generateAccessToken(user);
+=======
+            req.logIn(user, (err) => {
+                if (err) {
+                    throw new AuthFailureError('Login failed');
+                }
+
+                const token = JWTUtils.generateAccessToken(user);
+
+                res.cookie('accessToken', 'Bearer ' + token, {
+                    httpOnly: true,
+                    secure: config.nodeEnv === 'production',
+                    sameSite: 'lax',
+                    maxAge: 3 * 24 * 60 * 60 * 1000 // 3 days
+                });
+
+                new OK({
+                    message: 'User logged in successfully',
+                    metadata: { user: user }
+                }).send(res);
+            });
+        })(req, res, next);
+    };
+
+    logout = async (req, res) => {
+        try {
+            // Clear session
+            req.logout((err) => {
+                if (err) {
+                    throw new ErrorResponse('Failed to logout');
+                }
+            });
+>>>>>>> 67c5dfdee6757f6166fdf25e86d1eeb2e30eb8ff
 
         res.cookie("accessToken", "Bearer " + token, {
           httpOnly: true,
