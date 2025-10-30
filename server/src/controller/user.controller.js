@@ -11,9 +11,9 @@ class UserController {
 
             const user = {
                 id: req.user.id,
-                name: req.user.name,
+                name: req.user.username,
                 email: req.user.email,
-                avatar: req.user.avatar,
+                avatar: req.user.avatar_url,
                 provider: req.user.provider,
                 createdAt: req.user.createdAt,
                 lastLogin: req.user.lastLogin,
