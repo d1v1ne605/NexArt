@@ -17,7 +17,10 @@ import {
   MarketplacePaused,
   PaymentTokenUpdated,
   MarketplaceUnpaused,
+  MarketplaceStats,
+  CollectionStats,
 } from "../generated/schema"
+import { BigInt, Address } from "@graphprotocol/graph-ts"
 
 export function handleItemListed(event: ItemListedEvent): void {
   let entity = new ItemListed(
@@ -35,6 +38,9 @@ export function handleItemListed(event: ItemListedEvent): void {
   entity.transactionHash = event.transaction.hash
 
   entity.save()
+
+  // Update marketplace stats
+  updateMarketplaceStats("listing", BigInt.zero())
 }
 
 export function handleItemSold(event: ItemSoldEvent): void {
@@ -56,6 +62,12 @@ export function handleItemSold(event: ItemSoldEvent): void {
   entity.transactionHash = event.transaction.hash
 
   entity.save()
+
+  // 🔥 Track volume only for ETH sales (paymentToken == 0x0)
+  if (event.params.paymentToken.equals(Address.zero())) {
+    updateMarketplaceStats("sale", event.params.price)
+    updateCollectionStats(event.params.nftContract, event.params.price)
+  }
 }
 
 export function handleListingCancelled(event: ListingCancelledEvent): void {
@@ -146,4 +158,48 @@ export function handleUnpaused(event: UnpausedEvent): void {
   entity.transactionHash = event.transaction.hash
 
   entity.save()
+}
+
+// Helper functions for stats tracking
+function updateMarketplaceStats(action: string, salePrice: BigInt): void {
+  let stats = MarketplaceStats.load("marketplace-stats")
+  if (stats == null) {
+    stats = new MarketplaceStats("marketplace-stats")
+    stats.totalVolume = BigInt.zero()
+    stats.totalSales = BigInt.zero()
+    stats.totalListings = BigInt.zero()
+    stats.totalCollections = BigInt.zero()
+  }
+
+  if (action == "sale") {
+    stats.totalVolume = stats.totalVolume.plus(salePrice)
+    stats.totalSales = stats.totalSales.plus(BigInt.fromI32(1))
+  } else if (action == "listing") {
+    stats.totalListings = stats.totalListings.plus(BigInt.fromI32(1))
+  }
+
+  stats.save()
+}
+
+function updateCollectionStats(collectionAddress: Address, salePrice: BigInt): void {
+  let stats = CollectionStats.load(collectionAddress)
+  if (stats == null) {
+    stats = new CollectionStats(collectionAddress)
+    stats.collection = collectionAddress
+    stats.totalVolume = BigInt.zero()
+    stats.totalSales = BigInt.zero()
+    stats.floorPrice = BigInt.zero()
+    stats.totalSupply = BigInt.zero()
+    stats.creator = Address.zero()
+  }
+
+  stats.totalVolume = stats.totalVolume.plus(salePrice)
+  stats.totalSales = stats.totalSales.plus(BigInt.fromI32(1))
+  
+  // Update floor price if this is lower (or first sale)
+  if (stats.floorPrice.equals(BigInt.zero()) || salePrice.lt(stats.floorPrice)) {
+    stats.floorPrice = salePrice
+  }
+
+  stats.save()
 }

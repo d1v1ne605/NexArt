@@ -120,10 +120,6 @@ Notification.prototype.markAsRead = async function () {
     return this;
 };
 
-Notification.prototype.isExpired = function () {
-    return this.expires_at && new Date() > this.expires_at;
-};
-
 // Class methods
 Notification.getUserNotifications = async function (userId, options = {}) {
     const {
@@ -131,7 +127,6 @@ Notification.getUserNotifications = async function (userId, options = {}) {
         offset = 0,
         unreadOnly = false,
         type = null,
-        includeExpired = false
     } = options;
 
     const whereClause = { user_id: userId };
@@ -142,13 +137,6 @@ Notification.getUserNotifications = async function (userId, options = {}) {
 
     if (type) {
         whereClause.type = type;
-    }
-
-    if (!includeExpired) {
-        whereClause[sequelize.Sequelize.Op.or] = [
-            { expires_at: null },
-            { expires_at: { [sequelize.Sequelize.Op.gt]: new Date() } }
-        ];
     }
 
     return await this.findAndCountAll({
@@ -169,10 +157,6 @@ Notification.getUnreadCount = async function (userId) {
         where: {
             user_id: userId,
             is_read: false,
-            [sequelize.Sequelize.Op.or]: [
-                { expires_at: null },
-                { expires_at: { [sequelize.Sequelize.Op.gt]: new Date() } }
-            ]
         }
     });
 };
@@ -207,12 +191,18 @@ Notification.bulkCreateNotifications = async function (notifications) {
     });
 };
 
-// Auto-cleanup expired notifications (can be called by a cron job)
+/**
+ * @dev Auto-cleanup old notifications (30+ days)
+ * @notice This function removes notifications older than 30 days
+ * @returns {Promise<number>} Number of deleted notifications
+ */
 Notification.cleanupExpired = async function () {
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+
     return await this.destroy({
         where: {
-            expires_at: {
-                [sequelize.Sequelize.Op.lt]: new Date()
+            created_at: {
+                [sequelize.Sequelize.Op.lt]: thirtyDaysAgo
             }
         }
     });

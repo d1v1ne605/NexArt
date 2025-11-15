@@ -1,14 +1,31 @@
 import { ethers } from "ethers";
 import { network } from "hardhat";
 import * as readline from "readline";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 import "dotenv/config";
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const mockTokenCids: string[] = JSON.parse(
+  fs.readFileSync(
+    path.resolve(__dirname, "../mock/mock_metadata_nft_cid.json"),
+    "utf-8"
+  )
+);
+
+const mockImages: string[] = JSON.parse(
+  fs.readFileSync(path.resolve(__dirname, "../mock/mock_img.json"), "utf-8")
+);
+
 // Contract addresses (deployed contracts)
-const NFT_COLLECTION_FACTORY_ADDRESS =
-  process.env.NFT_COLLECTION_FACTORY_ADDRESS as string;
+const NFT_COLLECTION_FACTORY_ADDRESS = process.env
+  .NFT_COLLECTION_FACTORY_ADDRESS as string;
 const MARKETPLACE_ADDRESS = process.env.MARKETPLACE_ADDRESS as string;
-const MARKETPLACE_FEE_MANAGER_ADDRESS =
-  process.env.MARKETPLACE_FEE_MANAGER_ADDRESS as string;
+const MARKETPLACE_FEE_MANAGER_ADDRESS = process.env
+  .MARKETPLACE_FEE_MANAGER_ADDRESS as string;
 
 // Global variables
 let signer: any;
@@ -70,6 +87,16 @@ const generateRandomTokenCID = (): string => {
   return tokenCID.toString();
 };
 
+const getRandomTokenCid = (): string => {
+  const randomIndex = Math.floor(Math.random() * mockTokenCids.length);
+  return mockTokenCids[randomIndex];
+};
+
+const getRandomAvatarImage = (): string => {
+  const randomIndex = Math.floor(Math.random() * mockImages.length);
+  return mockImages[randomIndex];
+};
+
 // Utility functions
 const displayHeader = () => {
   console.clear();
@@ -97,7 +124,9 @@ async function initializeContracts() {
 
   try {
     // Connect to network and get ethers
-    const { ethers: hreEthers } = await network.connect(process.env.NETWORK || "");
+    const { ethers: hreEthers } = await network.connect(
+      process.env.NETWORK || ""
+    );
 
     // Get signer
     [signer] = await hreEthers.getSigners();
@@ -370,7 +399,9 @@ async function showAccountInfo() {
   console.log("═══════════════════════════════════════════");
 
   try {
-    const { ethers: hreEthers } = await network.connect(process.env.NETWORK || "");
+    const { ethers: hreEthers } = await network.connect(
+      process.env.NETWORK || ""
+    );
     const balance = await hreEthers.provider.getBalance(signer.address);
     console.log(`📍 Address: ${signer.address}`);
     console.log(`💰 Balance: ${formatEther(balance)} ETH`);
@@ -401,8 +432,8 @@ async function createRandomCollection() {
     const name = generateRandomName();
     const symbol = generateRandomSymbol();
     const description = generateRandomDescription();
-    const baseURI = "https://api.nexart.com/collections/";
-    const avatarCollection = `https://avatar.nexart.com/collections/${name}`;
+    const baseURI = "http://ipfs.io/ipfs/";
+    const avatarCollection = getRandomAvatarImage();
     const maxSupply = Math.floor(Math.random() * 1000) + 100; // 100-1100
 
     console.log(`📝 Collection Details:`);
@@ -584,14 +615,16 @@ async function mintRandomNFT() {
       return;
     }
 
-    const { ethers: hreEthers } = await network.connect(process.env.NETWORK || "");
+    const { ethers: hreEthers } = await network.connect(
+      process.env.NETWORK || ""
+    );
     const nftCollection = await hreEthers.getContractAt(
       "NFTCollection",
       collectionAddress,
       signer
     );
 
-    const tokenCID = generateRandomTokenCID();
+    const tokenCID = getRandomTokenCid();
     const royaltyBps = Math.floor(Math.random() * 500); // 0-5%
     const recipient = signer.address;
 
@@ -655,7 +688,9 @@ async function batchMintRandomNFTs() {
     const quantityStr = await getUserInput("Enter quantity to mint (1-5): ");
     const quantity = Math.min(Math.max(parseInt(quantityStr) || 3, 1), 5);
 
-    const { ethers: hreEthers } = await network.connect(process.env.NETWORK || "");
+    const { ethers: hreEthers } = await network.connect(
+      process.env.NETWORK || ""
+    );
     const nftCollection = await hreEthers.getContractAt(
       "NFTCollection",
       collectionAddress,
@@ -715,7 +750,9 @@ async function viewCollectionStats() {
       return;
     }
 
-    const { ethers: hreEthers } = await network.connect(process.env.NETWORK || "");
+    const { ethers: hreEthers } = await network.connect(
+      process.env.NETWORK || ""
+    );
     const nftCollection = await hreEthers.getContractAt(
       "NFTCollection",
       collectionAddress,
@@ -729,7 +766,7 @@ async function viewCollectionStats() {
       creator,
       avatarCollection,
       description,
-      externalUrl
+      externalUrl,
     ] = await nftCollection.getCollectionStats();
     const name = await nftCollection.name();
     const symbol = await nftCollection.symbol();
@@ -773,7 +810,9 @@ async function viewTokenInfo() {
       return;
     }
 
-    const { ethers: hreEthers } = await network.connect(process.env.NETWORK || "");
+    const { ethers: hreEthers } = await network.connect(
+      process.env.NETWORK || ""
+    );
     const nftCollection = await hreEthers.getContractAt(
       "NFTCollection",
       collectionAddress,
@@ -819,7 +858,9 @@ async function setRandomTokenRoyalty() {
       return;
     }
 
-    const { ethers: hreEthers } = await network.connect(process.env.NETWORK || "");
+    const { ethers: hreEthers } = await network.connect(
+      process.env.NETWORK || ""
+    );
     const nftCollection = await hreEthers.getContractAt(
       "NFTCollection",
       collectionAddress,
@@ -875,7 +916,9 @@ async function listNFTForSale() {
       return;
     }
 
-    const { ethers: hreEthers } = await network.connect(process.env.NETWORK || "");
+    const { ethers: hreEthers } = await network.connect(
+      process.env.NETWORK || ""
+    );
     const nftCollection = await hreEthers.getContractAt(
       "NFTCollection",
       nftContractAddress,
