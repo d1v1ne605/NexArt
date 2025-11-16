@@ -119,3 +119,49 @@ dataSources:
         - event: Unpaused(address)
           handler: handleUnpaused
       file: ./src/marketplace.ts
+
+templates:
+  - kind: ethereum
+    name: NFTCollection
+    network: localhost
+    source:
+      abi: NFTCollection
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - TokenMinted
+        - Transfer
+        - Approval
+        - ApprovalForAll
+        - BaseURIUpdated
+        - RoyaltySet
+        - CollectionInfoUpdated
+      abis:
+        - name: NFTCollection
+          file: ./abis/NFTCollection.json
+        - name: NFTCollectionFactory
+          file: ./abis/NFTCollectionFactory.json
+      eventHandlers:
+        - event: TokenMinted(indexed uint256,indexed address,string)
+          handler: handleTokenMinted
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer
+        - event: Approval(indexed address,indexed address,indexed uint256)
+          handler: handleApproval
+        - event: ApprovalForAll(indexed address,indexed address,bool)
+          handler: handleApprovalForAll
+        - event: BaseURIUpdated(string)
+          handler: handleBaseURIUpdated
+        - event: RoyaltySet(indexed uint256,uint256)
+          handler: handleRoyaltySet
+        - event: CollectionInfoUpdated(string,string)
+          handler: handleCollectionInfoUpdated
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: Paused(address)
+          handler: handlePaused
+        - event: Unpaused(address)
+          handler: handleUnpaused
+      file: ./src/nft-collection.ts

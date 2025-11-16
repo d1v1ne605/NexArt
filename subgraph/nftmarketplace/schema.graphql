@@ -210,3 +210,124 @@ type MarketplaceUnpaused @entity(immutable: true) {
   blockTimestamp: BigInt!
   transactionHash: Bytes!
 }
+
+# NFTCollection Events
+type TokenMinted @entity(immutable: true) {
+  id: Bytes!
+  tokenId: BigInt! # uint256
+  to: Bytes! # address
+  tokenURI: String! # string
+  collection: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type Transfer @entity(immutable: true) {
+  id: Bytes!
+  from: Bytes! # address
+  to: Bytes! # address
+  tokenId: BigInt! # uint256
+  collection: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type Approval @entity(immutable: true) {
+  id: Bytes!
+  owner: Bytes! # address
+  approved: Bytes! # address
+  tokenId: BigInt! # uint256
+  collection: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type ApprovalForAll @entity(immutable: true) {
+  id: Bytes!
+  owner: Bytes! # address
+  operator: Bytes! # address
+  approved: Boolean! # bool
+  collection: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type BaseURIUpdated @entity(immutable: true) {
+  id: Bytes!
+  newBaseURI: String! # string
+  collection: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type RoyaltySet @entity(immutable: true) {
+  id: Bytes!
+  tokenId: BigInt! # uint256
+  royaltyBps: BigInt! # uint256
+  collection: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type CollectionInfoUpdated @entity(immutable: true) {
+  id: Bytes!
+  description: String! # string
+  externalUrl: String! # string
+  collection: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type NFTCollectionOwnershipTransferred @entity(immutable: true) {
+  id: Bytes!
+  previousOwner: Bytes! # address
+  newOwner: Bytes! # address
+  collection: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type NFTCollectionPaused @entity(immutable: true) {
+  id: Bytes!
+  account: Bytes! # address
+  collection: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type NFTCollectionUnpaused @entity(immutable: true) {
+  id: Bytes!
+  account: Bytes! # address
+  collection: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+# Aggregate Entities for Analytics
+type MarketplaceStats @entity(immutable: false) {
+  id: ID! # "marketplace-stats"
+  totalVolume: BigInt! # Total trading volume in ETH wei
+  totalSales: BigInt! # Total number of sales
+  totalListings: BigInt! # Total number of listings
+  totalCollections: BigInt! # Total number of collections created
+}
+
+type CollectionStats @entity(immutable: false) {
+  id: Bytes! # collection address
+  collection: Bytes! # collection address  
+  totalVolume: BigInt! # Total volume for this collection
+  totalSales: BigInt! # Total sales for this collection
+  floorPrice: BigInt! # Lowest listing price
+  totalSupply: BigInt! # Total NFTs minted
+  creator: Bytes! # Collection creator
+}

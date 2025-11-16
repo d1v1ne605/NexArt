@@ -1,10 +1,11 @@
-import express from "express";
-import dotenv from "dotenv";
-import session from "express-session";
-import cors from "cors";
-import helmet from "helmet";
-import morgan from "morgan";
-import cookieParser from "cookie-parser";
+import express from 'express'
+import dotenv from 'dotenv'
+import session from 'express-session'
+import cors from 'cors'
+import helmet from 'helmet'
+import morgan from 'morgan'
+import cookieParser from 'cookie-parser'
+import ContractEventListener from './service/contractEventListener.service.js';
 
 // Import Route
 import routes from "./routes/index.js";
@@ -58,6 +59,9 @@ app.use(
 
 // Cookie parsing middleware
 app.use(cookieParser());
+
+// Serve static files
+app.use(express.static('public'));
 
 // Session middleware (required for Passport)
 app.use(session(config.session));

@@ -23,10 +23,8 @@ class UserController {
         provider: req.user.provider,
         createdAt: req.user.createdAt,
         lastLogin: req.user.lastLogin,
-        bio: req.user.bio,
+        bio: req.user.bio
       };
-
-      console.log("LogUser", user);
 
       new SuccessResponse({
         message: "User retrieved successfully",
