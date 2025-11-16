@@ -23,22 +23,19 @@ class AuthController {
 
       req.logIn(user, (err) => {
         if (err) {
-          throw new AuthFailureError('Login failed');
+          throw new AuthFailureError("Login failed");
         }
 
         const token = JWTUtils.generateAccessToken(user);
 
-        res.cookie('accessToken', 'Bearer ' + token, {
+        res.cookie("accessToken", "Bearer " + token, {
           httpOnly: true,
-          secure: config.nodeEnv === 'production',
-          sameSite: 'lax',
-          maxAge: 3 * 24 * 60 * 60 * 1000 // 3 days
+          secure: config.nodeEnv === "production",
+          sameSite: "lax",
+          maxAge: 3 * 24 * 60 * 60 * 1000, // 3 days
         });
 
-        new OK({
-          message: 'User logged in successfully',
-          metadata: { user: user }
-        }).send(res);
+        res.redirect(`${config.clientUrl}/auth/success`);
       });
     })(req, res, next);
   };
