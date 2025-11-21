@@ -23,7 +23,7 @@ const Notification = sequelize.define("Notification", {
         },
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE',
-        comment: "Foreign key referencing users table"
+        comment: "Foreign key referencing users table (for wallet-based users)"
     },
     type: {
         type: DataTypes.ENUM(
@@ -96,7 +96,19 @@ const Notification = sequelize.define("Notification", {
     underscored: true,
     indexes: [
         {
+            fields: ['user_id']
+        },
+        {
             fields: ['tx_hash']
+        },
+        {
+            fields: ['type']
+        },
+        {
+            fields: ['is_read']
+        },
+        {
+            fields: ['created_at']
         }
     ],
     scopes: {
@@ -129,7 +141,11 @@ Notification.getUserNotifications = async function (userId, options = {}) {
         type = null,
     } = options;
 
-    const whereClause = { user_id: userId };
+    const whereClause = {};
+
+    if (userId) {
+        whereClause.user_id = userId;
+    }
 
     if (unreadOnly) {
         whereClause.is_read = false;
@@ -139,45 +155,59 @@ Notification.getUserNotifications = async function (userId, options = {}) {
         whereClause.type = type;
     }
 
+    const includeModel =
+    {
+        model: sequelize.models.User,
+        as: 'user',
+        attributes: ['id', 'display_name', 'avatar_url']
+    };
+
     return await this.findAndCountAll({
         where: whereClause,
         limit,
         offset,
         order: [['created_at', 'DESC']],
-        include: [{
-            model: sequelize.models.User,
-            as: 'user',
-            attributes: ['id', 'username', 'avatar_url']
-        }]
+        include: [includeModel]
     });
 };
 
 Notification.getUnreadCount = async function (userId) {
+    const whereClause = {
+        is_read: false,
+    };
+
+    if (userId) {
+        whereClause.user_id = userId;
+    }
+
     return await this.count({
-        where: {
-            user_id: userId,
-            is_read: false,
-        }
+        where: whereClause
     });
 };
 
 Notification.markAllAsRead = async function (userId) {
+    const whereClause = {
+        is_read: false
+    };
+
+    if (userId) {
+        whereClause.user_id = userId;
+    }
+
     return await this.update(
         { is_read: true },
         {
-            where: {
-                user_id: userId,
-                is_read: false
-            }
+            where: whereClause
         }
     );
 };
 
 Notification.createNotification = async function (notificationData) {
     // Validate required fields
-    const { user_id, type, title, message } = notificationData;
+    const { type, title, message } = notificationData;
+    const hasUser = notificationData.user_id !== undefined && notificationData.user_id !== null;
 
-    if (!user_id || !type || !title || !message) {
+    if (!hasUser || !type || !title || !message) {
         throw new Error('Missing required notification fields');
     }
 

@@ -1,9 +1,11 @@
 "use strict";
+// import User from './user.model.js';
 import User from './user.model.js';
+import WalletNonce from './walletNonce.model.js';
 import UserNFTFavorites from './userNftFavorites.model.js';
 import Notification from './notification.model.js';
 
-// User - UserNFTFavorites relationship (1:many)
+// User - UserNFTFavorites relationship (1:many) for new wallet-based users
 User.hasMany(UserNFTFavorites, {
     foreignKey: 'user_id',
     as: 'favorites',
@@ -18,7 +20,7 @@ UserNFTFavorites.belongsTo(User, {
     onUpdate: 'CASCADE'
 });
 
-// User - Notification relationship (1:many)
+// User - Notification relationship (1:many) for new wallet-based users
 User.hasMany(Notification, {
     foreignKey: 'user_id',
     as: 'notifications',
@@ -33,9 +35,28 @@ Notification.belongsTo(User, {
     onUpdate: 'CASCADE'
 });
 
+// User - WalletNonce relationship (1:many) for wallet authentication
+User.hasMany(WalletNonce, {
+    foreignKey: 'wallet_address',
+    sourceKey: 'wallet_address',
+    as: 'nonces',
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE'
+});
+
+WalletNonce.belongsTo(User, {
+    foreignKey: 'wallet_address',
+    targetKey: 'wallet_address',
+    as: 'user',
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE'
+});
+
 // Export all models
 const models = {
+    // User,
     User,
+    WalletNonce,
     UserNFTFavorites,
     Notification
 };
@@ -48,7 +69,9 @@ const syncDatabase = async (options = {}) => {
         console.log('Starting database synchronization...');
 
         // Sync all models in the correct order (User first, then related models)
+        // await User.sync({ force, alter });
         await User.sync({ force, alter });
+        await WalletNonce.sync({ force, alter });
 
         await UserNFTFavorites.sync({ force, alter });
 
@@ -74,30 +97,26 @@ const seedDatabase = async () => {
         if (userCount === 0) {
             console.log('No users found, creating sample data...');
 
-            // Create sample users
+            // Create sample wallet-based users
             const sampleUsers = await User.bulkCreate([
                 {
-                    wallet_address: '0x92d84DF75C5A1744Bc10B9Af1aC7d6A569e9CFDc',
-                    username: 'cryptoartist',
-                    email: 'artist@example.com',
-                    bio: 'Digital artist creating unique NFT collections',
-                    provider: 'google',
-                    provider_id: 'google|12345'
+                    wallet_address: '0x742F35Cc6cF0532da5FaCff64Fb7e1c4c61CA79e',
+                    display_name: 'Crypto Artist',
+                    bio: 'Creating digital art on the blockchain',
+                    is_verified: false
                 },
                 {
-                    wallet_address: '0x630d5f07E25cc6CA59a21dCe330B8E1Fc28dD146',
-                    username: 'nftcollector',
-                    email: 'collector@example.com',
-                    bio: 'Passionate NFT collector and trader',
-                    provider: 'google',
-                    provider_id: 'google|67890'
+                    wallet_address: '0x8ba1f109551bD432803012645Hac136c744bdC06',
+                    display_name: 'NFT Collector Pro',
+                    bio: 'Collecting rare and valuable NFTs',
+                    is_verified: false
                 }
             ], {
                 validate: true,
                 ignoreDuplicates: true
             });
 
-            console.log(`✓ Created ${sampleUsers.length} sample users`);
+            console.log(`✓ Created ${sampleUsers.length} sample wallet-based users`);
 
             // Create sample notifications for the first user
             if (sampleUsers.length > 0) {
@@ -160,6 +179,7 @@ const seedDatabase = async () => {
 
 export {
     User,
+    WalletNonce,
     UserNFTFavorites,
     Notification,
     models,

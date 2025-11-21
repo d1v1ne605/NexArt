@@ -34,7 +34,7 @@ contract NFTCollection is
     /// @dev Collection description
     string public description;
 
-    /// @dev Avatar of this collection
+    /// @dev This is the link include avatar and metadata (categories,...) of this collection
     string public avatarCollection;
 
     /// @dev Collection external URL

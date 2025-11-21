@@ -15,7 +15,6 @@ dotenv.config()
 
 // Import configurations
 import config from './config/config.common.js'
-import passport from './config/passport.js'
 
 // Create Express app
 const app = express();
@@ -63,10 +62,6 @@ app.use(express.static('public'));
 
 // Session middleware (required for Passport)
 app.use(session(config.session));
-
-// Passport middleware
-app.use(passport.initialize());
-app.use(passport.session());
 
 // Request logging middleware
 app.use((req, res, next) => {
