@@ -18,27 +18,25 @@ const User = sequelize.define(
     },
     wallet_address: {
       type: DataTypes.STRING(42),
-      allowNull: true,
-      defaultValue: null,
+      allowNull: false,
       unique: true,
       validate: {
         isEthereumAddress(value) {
-          // Only validate if value exists
-          if (value && !isAddress(value)) {
-            throw new Error("Invalid Ethereum wallet address");
+          if (!isAddress(value)) {
+            throw new Error('Invalid Ethereum wallet address');
           }
         },
+        notEmpty: true
       },
-      comment: "Ethereum wallet address (unique)",
+      comment: "Primary Ethereum wallet address (unique, required)"
     },
-    username: {
-      type: DataTypes.STRING(50),
-      allowNull: false,
+    display_name: {
+      type: DataTypes.STRING(100),
+      allowNull: true,
       validate: {
-        len: [3, 50],
-        notEmpty: true,
+        len: [1, 100]
       },
-      comment: "Unique username for the user",
+      comment: "Display name for the user"
     },
     avatar_url: {
       type: DataTypes.TEXT,
@@ -52,94 +50,101 @@ const User = sequelize.define(
       type: DataTypes.TEXT,
       allowNull: true,
       validate: {
-        len: [0, 500], // Max 500 characters for bio
+        len: [0, 1000] // Max 1000 characters for bio
       },
-      comment: "User biography/description",
+      comment: "User biography/description"
     },
     email: {
       type: DataTypes.STRING(255),
       allowNull: true,
       unique: true,
       validate: {
-        isEmail: true,
+        isEmail: true
       },
-      comment: "User email address",
-    },
-    provider: {
-      type: DataTypes.ENUM("google"),
-      allowNull: false,
-      comment: "Authentication provider used",
-    },
-    provider_id: {
-      type: DataTypes.STRING(255),
-      unique: true,
-      comment: "ID from OAuth provider (Google ID, etc.)",
+      comment: "User email address (optional)"
     },
     is_active: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
       defaultValue: true,
-      comment: "Whether the user account is active",
+      comment: "Whether the user account is active"
+    },
+    nonce_count: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0,
+      comment: "Counter for preventing replay attacks (increments on each login)"
     },
     last_login: {
       type: DataTypes.DATE,
       allowNull: true,
-      comment: "Last login timestamp",
+      comment: "Last login timestamp"
     },
-  },
-  {
-    tableName: "users",
-    timestamps: true,
-    underscored: true,
-    indexes: [
-      {
-        unique: true,
-        fields: ["wallet_address"],
-      },
-      {
-        unique: true,
-        fields: ["email"],
-        where: {
-          email: {
-            [sequelize.Sequelize.Op.ne]: null,
-          },
-        },
-      },
-    ],
-    hooks: {
-      beforeCreate: async (user) => {
-        // Convert wallet address to lowercase for consistency
-        if (user.wallet_address) {
-          user.wallet_address = user.wallet_address.toLowerCase();
-        }
-        // Convert username to lowercase
-        if (user.username) {
-          user.username = user.username.toLowerCase();
-        }
-      },
-      beforeUpdate: async (user) => {
-        if (user.changed("wallet_address") && user.wallet_address) {
-          user.wallet_address = user.wallet_address.toLowerCase();
-        }
-        if (user.changed("username") && user.username) {
-          user.username = user.username.toLowerCase();
-        }
-      },
+  }, {
+  tableName: "users",
+  timestamps: true,
+  underscored: true,
+  indexes: [
+    {
+      unique: true,
+      fields: ['wallet_address']
     },
-  },
-);
+    {
+      unique: true,
+      fields: ['email'],
+      where: {
+        email: {
+          [sequelize.Sequelize.Op.ne]: null
+        }
+      }
+    },
+    {
+      fields: ['is_active']
+    },
+    {
+      fields: ['created_at']
+    }
+  ],
+  hooks: {
+    beforeCreate: async (user) => {
+      // Convert wallet address to lowercase for consistency
+      if (user.wallet_address) {
+        user.wallet_address = user.wallet_address.toLowerCase();
+      }
+
+      // Set display name to wallet address if not provided
+      user.display_name = user.wallet_address;
+
+    },
+    beforeUpdate: async (user) => {
+      if (user.changed('wallet_address') && user.wallet_address) {
+        user.wallet_address = user.wallet_address.toLowerCase();
+      }
+    }
+  }
+});
 
 // Instance methods
 User.prototype.toJSON = function () {
   const values = { ...this.get() };
-  // Don't expose sensitive data in JSON
-  delete values.provider_id;
+  // Can expose all data for wallet-based users
   return values;
 };
 
 User.prototype.updateLastLogin = async function () {
   this.last_login = new Date();
+  this.nonce_count = (this.nonce_count || 0) + 1;
   await this.save();
+};
+
+User.prototype.updateStats = async function (statsUpdate) {
+  Object.keys(statsUpdate).forEach(key => {
+    if (this[key] !== undefined) {
+      this[key] = statsUpdate[key];
+    }
+  });
+  await this.save();
+  return this;
 };
 
 // Class methods
@@ -161,15 +166,6 @@ User.findByWalletAddress = async function (walletAddress) {
   });
 };
 
-User.findByUsername = async function (username) {
-  return await this.findOne({
-    where: {
-      username: username.toLowerCase(),
-      is_active: true,
-    },
-  });
-};
-
 User.findByEmail = async function (email) {
   return await this.findOne({
     where: {
@@ -179,14 +175,22 @@ User.findByEmail = async function (email) {
   });
 };
 
-User.findByProviderId = async function (provider, providerId) {
-  return await this.findOne({
-    where: {
-      provider: provider,
-      provider_id: providerId,
-      is_active: true,
-    },
+User.createOrUpdateUser = async function (walletAddress, userData = {}) {
+  const existingUser = await this.findByWalletAddress(walletAddress);
+
+  if (existingUser) {
+    // Update last login and nonce count
+    await existingUser.updateLastLogin();
+    return existingUser;
+  }
+
+  // Create new user
+  const newUser = await this.create({
+    wallet_address: walletAddress,
+    ...userData
   });
+
+  return newUser;
 };
 
 User.updateUser = async function (id, updateData) {
@@ -195,16 +199,13 @@ User.updateUser = async function (id, updateData) {
     throw new Error("User not found");
   }
 
-  Object.keys(updateData).forEach((key) => {
-    user[key] = updateData[key];
+  Object.keys(updateData).forEach(key => {
+    if (key !== 'wallet_address') { // Prevent changing wallet address
+      user[key] = updateData[key];
+    }
   });
 
   await user.save();
-  return user;
-};
-
-User.createUser = async function (userData) {
-  const user = await this.create(userData);
   return user;
 };
 

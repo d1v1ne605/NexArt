@@ -4,6 +4,7 @@ import socketService from './src/service/socket.service.js';
 import notificationService from './src/service/notification.service.js';
 import cronJobService from './src/service/cronJob.service.js';
 import eventListenerManager from './src/service/eventListenerManager.service.js';
+import { scheduleNonceCleanup, cleanupNoncesNow } from './src/utils/cronJobs.js';
 
 const PORT = process.env.PORT || 8080
 const server = app.listen(PORT, () => {
@@ -25,6 +26,18 @@ notificationService.init(socketService);
 
 // Initialize cron jobs
 cronJobService.init();
+
+// Schedule wallet auth nonce cleanup
+scheduleNonceCleanup();
+
+// Cleanup expired nonces on server start
+cleanupNoncesNow()
+    .then((count) => {
+        console.log(`🧹 Initial nonce cleanup completed. Removed ${count} expired nonces.`);
+    })
+    .catch(error => {
+        console.error('❌ Initial nonce cleanup failed:', error);
+    });
 
 // Initialize event listener manager (blockchain + subgraph polling)
 eventListenerManager.startAll()

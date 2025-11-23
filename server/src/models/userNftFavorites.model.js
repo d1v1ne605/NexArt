@@ -10,24 +10,21 @@ const UserNFTFavorites = sequelize.define("UserNFTFavorites", {
     user_id: {
         type: DataTypes.UUID,
         allowNull: false,
-        primaryKey: true,
         references: {
             model: 'users',
             key: 'id'
         },
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE',
-        comment: "Foreign key referencing users table"
+        comment: "Foreign key referencing users table (for wallet-based users)"
     },
     token_id: {
         type: DataTypes.STRING(255),
-        primaryKey: true,
         allowNull: false,
         comment: "NFT token ID from the contract"
     },
     contract_address: {
         type: DataTypes.STRING(42),
-        primaryKey: true,
         allowNull: false,
         validate: {
             isEthereumAddress(value) {
@@ -63,6 +60,16 @@ const UserNFTFavorites = sequelize.define("UserNFTFavorites", {
         {
             fields: ['token_id']
         },
+        {
+            unique: true,
+            fields: ['user_id', 'contract_address', 'token_id'],
+            where: {
+                user_id: {
+                    [sequelize.Sequelize.Op.ne]: null
+                }
+            },
+            name: 'unique_user_favorite'
+        },
     ],
     hooks: {
         beforeCreate: async (favorite) => {
@@ -80,51 +87,95 @@ const UserNFTFavorites = sequelize.define("UserNFTFavorites", {
 });
 
 // Instance methods
-UserNFTFavorites.prototype.toJSON = function() {
+UserNFTFavorites.prototype.toJSON = function () {
     const values = { ...this.get() };
     return values;
 };
 
 // Class methods
-UserNFTFavorites.findByUserAndNFT = async function(userId, contractAddress, tokenId) {
+UserNFTFavorites.findByUserAndNFT = async function (userId, contractAddress, tokenId) {
+    const whereClause = {
+        contract_address: contractAddress.toLowerCase(),
+        token_id: tokenId,
+        is_active: true
+    };
+
+    if (userId) {
+        whereClause.user_id = userId;
+    }
+
     return await this.findOne({
-        where: {
-            user_id: userId,
-            contract_address: contractAddress.toLowerCase(),
-            token_id: tokenId,
-            is_active: true
-        }
+        where: whereClause
     });
 };
 
-UserNFTFavorites.getUserFavorites = async function(userId, options = {}) {
-    const { limit = 20, offset = 0, network = null } = options;
-    
+UserNFTFavorites.getUserFavorites = async function (userId, options = {}) {
+    const { limit = 20, offset = 0 } = options;
+
     const whereClause = {
-        user_id: userId,
         is_active: true
     };
-    
-    if (network) {
-        whereClause.network = network;
+
+    if (userId) {
+        whereClause.user_id = userId;
     }
-    
+
+    const includeModel =
+    {
+        model: sequelize.models.User,
+        as: 'user',
+        attributes: ['id', 'displayName', 'avatar_url']
+    };
+
     return await this.findAndCountAll({
         where: whereClause,
         limit,
         offset,
         order: [['created_at', 'DESC']],
-        include: [{
-            model: sequelize.models.User,
-            as: 'user',
-            attributes: ['id', 'username', 'avatar_url']
-        }]
+        include: [includeModel]
     });
 };
 
-UserNFTFavorites.getPopularNFTs = async function(options = {}) {
+UserNFTFavorites.addFavorite = async function (userId, contractAddress, tokenId, tokenUri) {
+    const favoriteData = {
+        contract_address: contractAddress.toLowerCase(),
+        token_id: tokenId,
+        token_uri: tokenUri,
+        is_active: true
+    };
+
+    if (userId) {
+        favoriteData.user_id = userId;
+    }
+
+    // Check if favorite already exists
+    const existing = await this.findByUserAndNFT(userId, contractAddress, tokenId);
+    if (existing) {
+        if (!existing.is_active) {
+            // Reactivate if it was deactivated
+            existing.is_active = true;
+            await existing.save();
+            return existing;
+        }
+        return existing;
+    }
+
+    return await this.create(favoriteData);
+};
+
+UserNFTFavorites.removeFavorite = async function (userId, contractAddress, tokenId) {
+    const favorite = await this.findByUserAndNFT(userId, contractAddress, tokenId);
+    if (favorite) {
+        favorite.is_active = false;
+        await favorite.save();
+        return favorite;
+    }
+    return null;
+};
+
+UserNFTFavorites.getPopularNFTs = async function (options = {}) {
     const { limit = 10, timeframe = '7d' } = options;
-    
+
     let createdAtFilter = {};
     if (timeframe === '24h') {
         createdAtFilter = {
@@ -135,7 +186,7 @@ UserNFTFavorites.getPopularNFTs = async function(options = {}) {
             [sequelize.Sequelize.Op.gte]: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
         };
     }
-    
+
     return await this.findAll({
         attributes: [
             'contract_address',

@@ -16,8 +16,8 @@ const mockTokenCids: string[] = JSON.parse(
   )
 );
 
-const mockImages: string[] = JSON.parse(
-  fs.readFileSync(path.resolve(__dirname, "../mock/mock_img.json"), "utf-8")
+const mockCollectionCids: string[] = JSON.parse(
+  fs.readFileSync(path.resolve(__dirname, "../mock/mock_metadata_collection_cid.json"), "utf-8")
 );
 
 // Contract addresses (deployed contracts)
@@ -92,8 +92,8 @@ const getRandomTokenCid = (): string => {
 };
 
 const getRandomAvatarImage = (): string => {
-  const randomIndex = Math.floor(Math.random() * mockImages.length);
-  return mockImages[randomIndex];
+  const randomIndex = Math.floor(Math.random() * mockCollectionCids.length);
+  return "https://ipfs.io/ipfs/" + mockCollectionCids[randomIndex];
 };
 
 // Utility functions

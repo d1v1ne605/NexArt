@@ -200,16 +200,19 @@ class ContractEventListener {
 
   async processCollectionCreatedEvent(eventData) {
     try {
+      const metadataCollection = await this.fetchMetadataFromURI(eventData.avatarCollection);
+
       const dataToIndexSearch = {
         objectID: eventData.collection.toLowerCase(),
         name: eventData.name,
         symbol: eventData.symbol,
         totalItems: 0,
         creator: eventData.creator,
-        image: eventData.avatarCollection || "",
-        description: eventData?.description || "",
-        created_at: eventData.timestamp || "",
-      };
+        image: metadataCollection?.avatar_url || '',
+        description: eventData?.description || '',
+        categories: metadataCollection?.categories || [],
+        created_at: metadataCollection?.keyvalues?.created_at || eventData.timestamp || '',
+      }
       // TODO: Update search index (Algolia)
       await saveObjects({
         indexName: COLLECTION_INDEX_NAME,
@@ -223,32 +226,6 @@ class ContractEventListener {
     } catch (error) {
       console.error("Error processing CollectionCreated event:", error);
     }
-  }
-
-  /**
-   * @dev Extract all category fields from metadata and return as array
-   * @param {Object} metadata - Metadata object containing category fields
-   * @returns {string[]} Array of categories
-   */
-  extractCategoriesFromCollectionMetadata(metadata) {
-    if (!metadata) return [];
-
-    const categories = [];
-
-    // Check for category fields (category_1, category_2, category_3, etc.)
-    Object.keys(metadata).forEach((key) => {
-      if (key.startsWith("category_") && metadata[key]) {
-        categories.push(metadata[key]);
-      }
-    });
-
-    // Also check for a general 'category' field if it exists
-    if (metadata.category && !categories.includes(metadata.category)) {
-      categories.push(metadata.category);
-    }
-
-    // Remove duplicates and empty values
-    return [...new Set(categories)].filter((cat) => cat && cat.trim() !== "");
   }
 
   /**rel
@@ -561,10 +538,10 @@ class ContractEventListener {
     try {
       // Convert IPFS URI to HTTP gateway
       let url = tokenURI;
-      if (tokenURI.startsWith("ipfs://")) {
-        url = tokenURI.replace("ipfs://", "https://ipfs.io/ipfs/");
+      if (tokenURI.startsWith('ipfs://')) {
+        url = tokenURI.replace('ipfs://', 'https://ipfs.io/ipfs/');
       } else {
-        url = url + "?pinataGatewayToken=" + config.pinataGatewayToken;
+        url = tokenURI + "?pinataGatewayToken=" + process.env.PINATA_GATEWAY_TOKEN
       }
 
       const response = await fetch(url, {

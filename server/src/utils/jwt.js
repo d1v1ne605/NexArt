@@ -21,8 +21,7 @@ class JWTUtils {
     const payload = {
       id: user.id,
       email: user.email,
-      name: user.name,
-      provider: user.provider
+      displayName: user.displayName,
     };
 
     return this.generateToken(payload);
@@ -43,8 +42,6 @@ class JWTUtils {
     if (!cookieHeader) {
       return null;
     }
-
-    // Parse cookies from header
     const cookies = {};
     cookieHeader.split(';').forEach(cookie => {
       const [name, value] = cookie.trim().split('=');
@@ -53,16 +50,17 @@ class JWTUtils {
       }
     });
 
-    const accessToken = cookies.accessToken;
-    if (!accessToken) {
+    const token = cookies.cookie || cookies.accessToken;
+    if (!token) {
       return null;
     }
 
-    if (accessToken.startsWith('Bearer ')) {
-      return accessToken.substring(7);
+    // Remove 'Bearer ' prefix if present
+    if (token.startsWith('Bearer ')) {
+      return token.substring(7);
     }
 
-    return accessToken;
+    return token;
   }
 }
 
