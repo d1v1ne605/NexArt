@@ -45,6 +45,9 @@ const config = {
       "Cache-Control",
     ],
   },
+
+  pinataGatewayToken:
+    "r_KaqqHpnPYaTazFclc_hpgcklDUWKHuqiALRU2BJfhT8cJa0m5rX2jWUTqD33aR",
 };
 
 export default config;
