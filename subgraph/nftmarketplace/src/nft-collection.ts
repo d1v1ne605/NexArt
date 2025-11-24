@@ -21,9 +21,83 @@ import {
   NFTCollectionOwnershipTransferred,
   NFTCollectionPaused,
   NFTCollectionUnpaused,
+  Token,
 } from "../generated/schema"
+import { Address, Bytes, BigInt } from "@graphprotocol/graph-ts"
+
+// Helper function to create token key
+function createTokenKey(collection: Address, tokenId: BigInt): string {
+  return collection.toHexString() + "-" + tokenId.toString()
+}
+
+// Helper function to update or create Token entity
+function updateTokenOwnership(
+  collection: Address,
+  tokenId: BigInt,
+  from: Address,
+  to: Address,
+  blockNumber: BigInt,
+  blockTimestamp: BigInt,
+  logIndex: BigInt,
+  txHash: Bytes,
+  tokenURI: string | null = null
+): void {
+  let tokenKey = createTokenKey(collection, tokenId)
+  let token = Token.load(tokenKey)
+  
+  if (token == null) {
+    // Create new token entity
+    token = new Token(tokenKey)
+    token.collection = collection
+    token.tokenId = tokenId
+    token.transferCount = BigInt.fromI32(0)
+    token.isBurned = false
+    token.lastTransferBlock = BigInt.fromI32(0)
+    token.lastTransferLogIndex = BigInt.fromI32(0)
+  }
+  
+  // Check if this event is newer than the last processed one
+  let isNewer = token.lastTransferBlock.lt(blockNumber) ||
+    (token.lastTransferBlock.equals(blockNumber) && token.lastTransferLogIndex.lt(logIndex))
+  
+  if (!isNewer) {
+    // This event is older or equal, don't update to maintain idempotency
+    return
+  }
+  
+  // Check if this is a mint (from zero address)
+  let zeroAddress = Address.fromString("0x0000000000000000000000000000000000000000")
+  let isZeroAddress = from.equals(zeroAddress)
+  if (isZeroAddress) {
+    token.mintedAt = blockTimestamp
+    token.mintedBy = to
+    if (tokenURI != null) {
+      token.tokenURI = tokenURI
+    }
+  }
+  
+  // Check if this is a burn (to zero address)
+  let isToBurn = to.equals(zeroAddress)
+  if (isToBurn) {
+    token.currentOwner = null
+    token.isBurned = true
+  } else {
+    token.currentOwner = to
+    token.isBurned = false
+  }
+  
+  // Update tracking fields
+  token.lastTransferBlock = blockNumber
+  token.lastTransferLogIndex = logIndex
+  token.lastTransferTxHash = txHash
+  token.lastTransferTimestamp = blockTimestamp
+  token.transferCount = token.transferCount.plus(BigInt.fromI32(1))
+  
+  token.save()
+}
 
 export function handleTokenMinted(event: TokenMintedEvent): void {
+  // Create immutable TokenMinted event entity
   let entity = new TokenMinted(
     event.transaction.hash.concatI32(event.logIndex.toI32()),
   )
@@ -37,9 +111,24 @@ export function handleTokenMinted(event: TokenMintedEvent): void {
   entity.transactionHash = event.transaction.hash
 
   entity.save()
+
+  // Update token ownership state (mint is a transfer from zero address)
+  let zeroAddress = Address.fromString("0x0000000000000000000000000000000000000000")
+  updateTokenOwnership(
+    event.address,
+    event.params.tokenId,
+    zeroAddress,
+    event.params.to,
+    event.block.number,
+    event.block.timestamp,
+    event.logIndex,
+    event.transaction.hash,
+    event.params.tokenURI
+  )
 }
 
 export function handleTransfer(event: TransferEvent): void {
+  // Create immutable Transfer event entity
   let entity = new Transfer(
     event.transaction.hash.concatI32(event.logIndex.toI32()),
   )
@@ -53,6 +142,18 @@ export function handleTransfer(event: TransferEvent): void {
   entity.transactionHash = event.transaction.hash
 
   entity.save()
+
+  // Update token ownership state
+  updateTokenOwnership(
+    event.address,
+    event.params.tokenId,
+    event.params.from,
+    event.params.to,
+    event.block.number,
+    event.block.timestamp,
+    event.logIndex,
+    event.transaction.hash
+  )
 }
 
 export function handleApproval(event: ApprovalEvent): void {

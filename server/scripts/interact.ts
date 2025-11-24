@@ -17,7 +17,10 @@ const mockTokenCids: string[] = JSON.parse(
 );
 
 const mockCollectionCids: string[] = JSON.parse(
-  fs.readFileSync(path.resolve(__dirname, "../mock/mock_metadata_collection_cid.json"), "utf-8")
+  fs.readFileSync(
+    path.resolve(__dirname, "../mock/mock_metadata_collection_cid.json"),
+    "utf-8"
+  )
 );
 
 // Contract addresses (deployed contracts)
@@ -1012,6 +1015,11 @@ async function buyListedNFT() {
       return;
     }
 
+    // Get ethers instance at the beginning
+    const { ethers: hreEthers } = await network.connect(
+      process.env.NETWORK || ""
+    );
+
     // Get listing details first
     const listing = await marketplace.getListing(listingId);
 
@@ -1021,17 +1029,99 @@ async function buyListedNFT() {
       return;
     }
 
-    console.log(`🛍️ Buying NFT:`);
+    console.log(`📋 Listing Details:`);
     console.log(`   NFT Contract: ${listing.nftContract}`);
     console.log(`   Token ID: ${listing.tokenId}`);
     console.log(`   Price: ${formatEther(listing.price)} ETH`);
     console.log(`   Seller: ${listing.seller}`);
+    console.log(`   Current Buyer: ${signer.address}`);
 
-    console.log("\n🔄 Buying NFT...");
+    // Check if current signer is the seller
+    if (listing.seller.toLowerCase() === signer.address.toLowerCase()) {
+      console.log("⚠️  Warning: You are trying to buy your own NFT!");
+    }
+
+    // Option to use different buyer address
+    console.log("\n🔄 Buyer Selection:");
+    console.log("1. Use current account (default)");
+    console.log("2. Use different account");
+
+    const buyerChoice = await getUserInput(
+      "Enter choice (1-2, or press Enter for default): "
+    );
+
+    let buyerSigner = signer;
+    let buyerAddress = signer.address;
+
+    if (buyerChoice === "2") {
+      // Get available signers
+      const signers = await hreEthers.getSigners();
+
+      console.log("\n👥 Available Accounts:");
+      for (let i = 0; i < Math.min(signers.length, 10); i++) {
+        const balance = await hreEthers.provider.getBalance(signers[i].address);
+        console.log(
+          `${i + 1}. ${signers[i].address} (Balance: ${formatEther(
+            balance
+          )} ETH)`
+        );
+      }
+
+      const signerIndexStr = await getUserInput(
+        "Enter account number (1-10): "
+      );
+      const signerIndex = parseInt(signerIndexStr) - 1;
+
+      if (
+        signerIndex >= 0 &&
+        signerIndex < signers.length &&
+        signerIndex < 10
+      ) {
+        buyerSigner = signers[signerIndex];
+        buyerAddress = buyerSigner.address;
+
+        // Check buyer balance
+        const buyerBalance = await hreEthers.provider.getBalance(buyerAddress);
+        if (buyerBalance < listing.price) {
+          console.log("❌ Insufficient balance for selected account!");
+          console.log(`   Required: ${formatEther(listing.price)} ETH`);
+          console.log(`   Available: ${formatEther(buyerBalance)} ETH`);
+          await waitForInput();
+          return;
+        }
+
+        console.log(`✅ Selected buyer: ${buyerAddress}`);
+
+        // Connect marketplace with new signer
+        marketplace = marketplace.connect(buyerSigner);
+      } else {
+        console.log("❌ Invalid account selection, using default...");
+      }
+    }
+
+    // Final confirmation
+    const buyerBalance = await hreEthers.provider.getBalance(buyerAddress);
+    console.log(`\n💰 Transaction Summary:`);
+    console.log(`   Buyer: ${buyerAddress}`);
+    console.log(`   Buyer Balance: ${formatEther(buyerBalance)} ETH`);
+    console.log(`   Purchase Price: ${formatEther(listing.price)} ETH`);
+    console.log(
+      `   Remaining Balance: ${formatEther(buyerBalance - listing.price)} ETH`
+    );
+
+    const confirm = await getUserInput("Confirm purchase? (y/N): ");
+    if (confirm.toLowerCase() !== "y" && confirm.toLowerCase() !== "yes") {
+      console.log("❌ Purchase cancelled!");
+      await waitForInput();
+      return;
+    }
+
+    console.log("\n🔄 Processing purchase...");
 
     const tx = await marketplace.buyItem(listingId, {
       value: listing.price,
     });
+
     console.log(`📝 Transaction Hash: ${tx.hash}`);
     console.log("⏳ Waiting for confirmation...");
 
@@ -1040,10 +1130,51 @@ async function buyListedNFT() {
       console.log("❌ Transaction failed!");
       return;
     }
+
     console.log("✅ NFT purchased successfully!");
     console.log(`⛽ Gas Used: ${receipt.gasUsed}`);
+    console.log(`🛍️ New Owner: ${buyerAddress}`);
+
+    // Get sale event details
+    const event = receipt.logs.find((log: any) => {
+      try {
+        const parsedLog = marketplace.interface.parseLog(log);
+        return parsedLog?.name === "ItemSold";
+      } catch {
+        return false;
+      }
+    });
+
+    if (event) {
+      const parsedEvent = marketplace.interface.parseLog(event);
+      if (parsedEvent) {
+        console.log(
+          `💰 Market Fee: ${formatEther(parsedEvent.args.marketFee)} ETH`
+        );
+        console.log(
+          `👑 Royalty Fee: ${formatEther(parsedEvent.args.royaltyFee)} ETH`
+        );
+      }
+    }
+
+    // Reset marketplace connection to original signer for subsequent operations
+    if (buyerChoice === "2") {
+      const [originalSigner] = await hreEthers.getSigners();
+      marketplace = marketplace.connect(originalSigner);
+    }
   } catch (error) {
     console.error("❌ Error buying NFT:", error);
+
+    // Reset marketplace connection on error
+    try {
+      const { ethers: hreEthers } = await network.connect(
+        process.env.NETWORK || ""
+      );
+      const [originalSigner] = await hreEthers.getSigners();
+      marketplace = marketplace.connect(originalSigner);
+    } catch (resetError) {
+      console.error("⚠️ Failed to reset marketplace connection:", resetError);
+    }
   }
 
   await waitForInput();
