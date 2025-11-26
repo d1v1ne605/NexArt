@@ -482,33 +482,104 @@ class ContractEventListener {
   }
 
   /**
-   * @dev Fetch metadata from tokenURI
+   * @dev Fetch metadata from tokenURI with retry logic and fallback
    * @param {string} tokenURI - Token URI (IPFS or HTTP)
+   * @param {number} maxRetries - Maximum retry attempts (default: 3)
    */
-  async fetchMetadataFromURI(tokenURI) {
-    try {
-      // Convert IPFS URI to HTTP gateway
-      let url = tokenURI;
-      if (tokenURI.startsWith('ipfs://')) {
-        url = tokenURI.replace('ipfs://', 'https://ipfs.io/ipfs/');
-      } else {
-        url = tokenURI + "?pinataGatewayToken=" + process.env.PINATA_GATEWAY_TOKEN
+  async fetchMetadataFromURI(tokenURI, maxRetries = 3) {
+    // Extract CID from various IPFS formats
+    const extractCID = (uri) => {
+      if (uri.startsWith('ipfs://')) {
+        return uri.replace('ipfs://', '');
       }
 
-      const response = await fetch(url, {
-        timeout: 10000 // 10 second timeout
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      // Handle gateway URLs like https://gateway.pinata.cloud/ipfs/{cid}
+      const ipfsMatch = uri.match(/\/ipfs\/([a-zA-Z0-9]+)/);
+      if (ipfsMatch) {
+        return ipfsMatch[1];
       }
 
-      return await response.json();
+      // If it's already just a CID
+      const cidPattern = /^(Qm[1-9A-HJ-NP-Za-km-z]{44}|b[A-Za-z2-7]{58,}|z[1-9A-HJ-NP-Za-km-z]{48,})$/;
+      if (cidPattern.test(uri)) {
+        return uri;
+      }
 
-    } catch (error) {
-      console.error('Error fetching metadata from URI:', error);
       return null;
+    };
+
+    const cid = extractCID(tokenURI);
+
+    // Primary URL construction
+    let primaryUrl = tokenURI;
+    if (tokenURI.startsWith('ipfs://')) {
+      primaryUrl = tokenURI.replace('ipfs://', 'https://gateway.pinata.cloud/ipfs/');
+    } else {
+      primaryUrl += `?pinataGatewayToken=${process.env.PINATA_GATEWAY_TOKEN}`;
     }
+
+    /**
+     * @dev Attempt to fetch metadata from a URL
+     * @param {string} url - URL to fetch from
+     * @returns {Promise<Object|null>} Parsed JSON response or null if failed
+     */
+    const attemptFetch = async (url) => {
+      try {
+        console.log(`Fetching metadata from: ${url}`);
+
+        const response = await fetch(url, {
+          timeout: 10000, // 10 second timeout
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        const metadata = await response.json();
+        console.log('Metadata fetched successfully');
+        return metadata;
+
+      } catch (error) {
+        console.warn(`Fetch failed: ${error.message}`);
+        return null;
+      }
+    };
+
+    // Try primary URL with retries
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      console.log(`Attempt ${attempt}/${maxRetries} with primary URL`);
+
+      const result = await attemptFetch(primaryUrl);
+      if (result) return result;
+
+      if (attempt < maxRetries) {
+        // Exponential backoff: 1s, 2s, 4s
+        const delay = Math.pow(2, attempt - 1) * 1000;
+        console.log(`Retrying in ${delay}ms...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+    }
+
+    // Fallback to public IPFS gateway if CID exists and cannot fetch from primary URL
+    if (cid) {
+      console.log('Trying fallback IPFS gateway...');
+      const fallbackUrl = `https://ipfs.io/ipfs/${cid}`;
+
+      for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        console.log(`Fallback attempt ${attempt}/${maxRetries}`);
+        const result = await attemptFetch(fallbackUrl);
+        if (result) return result;
+
+        if (attempt < maxRetries) {
+          const delay = Math.pow(2, attempt - 1) * 1000;
+          console.log(`⏳ Retrying fallback in ${delay}ms...`);
+          await new Promise(resolve => setTimeout(resolve, delay));
+        }
+      }
+    }
+
+    console.error('All fetch attempts failed for URI:', tokenURI);
+    return null;
   }
 
   /**
