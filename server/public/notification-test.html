@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,27 +13,32 @@
             padding: 20px;
             background-color: #f5f5f5;
         }
+
         .container {
             background: white;
             padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
+
         .status {
             padding: 10px;
             margin: 10px 0;
             border-radius: 4px;
         }
+
         .status.connected {
             background-color: #d4edda;
             color: #155724;
             border: 1px solid #c3e6cb;
         }
+
         .status.disconnected {
             background-color: #f8d7da;
             color: #721c24;
             border: 1px solid #f5c6cb;
         }
+
         .notification {
             background: #e7f3ff;
             border: 1px solid #bee5eb;
@@ -41,19 +47,23 @@
             margin: 10px 0;
             border-left: 4px solid #007bff;
         }
+
         .notification h4 {
             margin: 0 0 5px 0;
             color: #004085;
         }
+
         .notification p {
             margin: 5px 0;
             color: #0c5460;
         }
+
         .notification .meta {
             font-size: 12px;
             color: #6c757d;
             margin-top: 10px;
         }
+
         button {
             background: #007bff;
             color: white;
@@ -63,13 +73,16 @@
             cursor: pointer;
             margin: 5px;
         }
+
         button:hover {
             background: #0056b3;
         }
+
         button:disabled {
             background: #6c757d;
             cursor: not-allowed;
         }
+
         .log {
             background: #f8f9fa;
             border: 1px solid #dee2e6;
@@ -81,6 +94,7 @@
             font-family: monospace;
             font-size: 12px;
         }
+
         .unread-badge {
             background: #dc3545;
             color: white;
@@ -89,6 +103,7 @@
             font-size: 12px;
             margin-left: 10px;
         }
+
         input {
             width: 100%;
             padding: 8px;
@@ -98,10 +113,11 @@
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <h1>🔔 NexArt Notification Test</h1>
-        
+
         <!-- Connection Status -->
         <div id="connection-status" class="status disconnected">
             Disconnected
@@ -120,20 +136,12 @@
             <button onclick="disconnect()" disabled id="disconnect-btn">Disconnect</button>
         </div>
 
-        <!-- Test Notification -->
-        <div>
-            <h3>Test Notification</h3>
-            <input type="text" id="test-title" placeholder="Notification title" value="Test Notification" />
-            <input type="text" id="test-message" placeholder="Notification message" value="This is a test notification" />
-            <button onclick="sendTestNotification()">Send Test Notification</button>
-        </div>
-
         <!-- Controls -->
         <div>
             <h3>Controls</h3>
-            <button onclick="joinNotifications()">Join Notifications</button>
-            <button onclick="leaveNotifications()">Leave Notifications</button>
+            <button onclick="markNotificationAsRead()">Mark Notification as Read</button>
             <button onclick="markAllAsRead()">Mark All as Read</button>
+            <input type="text" id="notification-id" placeholder="Notification ID for marking as read" />
         </div>
 
         <!-- Notifications Display -->
@@ -170,9 +178,9 @@
         function updateConnectionStatus(connected) {
             const statusDiv = document.getElementById('connection-status');
             const disconnectBtn = document.getElementById('disconnect-btn');
-            
+
             isConnected = connected;
-            
+
             if (connected) {
                 statusDiv.textContent = 'Connected';
                 statusDiv.className = 'status connected';
@@ -199,13 +207,12 @@
             const notificationDiv = document.createElement('div');
             notificationDiv.className = 'notification';
             notificationDiv.innerHTML = `
-                <h4>${notification.title}</h4>
-                <p>${notification.message}</p>
+                <h4>${notification.title || 'No Title'}</h4>
+                <p>${notification.message || notification.body || 'No Message'}</p>
                 <div class="meta">
-                    Type: ${notification.type} | 
-                    ID: ${notification.id} | 
+                    Type: ${notification.type || 'unknown'} | 
+                    ID: ${notification.id || 'no-id'} | 
                     ${notification.timestamp || new Date().toLocaleString()}
-                    ${notification.tx_hash ? `| TX: ${notification.tx_hash.substring(0, 10)}...` : ''}
                 </div>
             `;
             container.appendChild(notificationDiv);
@@ -223,11 +230,13 @@
                 return;
             }
 
+            document.cookie = `accessToken=${token};path=/;SameSite=Lax`;
+
             log('Connecting to socket server...');
 
             socket = io('http://localhost:3000', {
                 auth: {
-                    cookie: token
+                    cookie: `accessToken=${token}` 
                 },
                 transports: ['websocket', 'polling']
             });
@@ -238,8 +247,8 @@
                 updateConnectionStatus(true);
             });
 
-            socket.on('disconnect', (reason) => {
-                log(`Socket disconnected: ${reason}`);
+            socket.on('disconnect', (reason, details) => {
+                log(`Socket disconnected: ${reason} - ${JSON.stringify(details || {})}`);
                 updateConnectionStatus(false);
             });
 
@@ -248,17 +257,14 @@
                 updateConnectionStatus(false);
             });
 
-            // Custom events
+            // Server events matching socket.service.js
             socket.on('connected', (data) => {
                 log(`Server confirmed connection: ${JSON.stringify(data)}`);
             });
 
-            // Notification events
             socket.on('notification:new', (data) => {
                 log(`New notification received: ${JSON.stringify(data)}`);
                 displayNotification(data);
-                // Play notification sound (optional)
-                // new Audio('/notification-sound.mp3').play().catch(() => {});
             });
 
             socket.on('notification:unread_count', (data) => {
@@ -266,12 +272,6 @@
                 updateUnreadCount(data.unreadCount);
             });
 
-            socket.on('notification:global', (data) => {
-                log(`Global notification: ${JSON.stringify(data)}`);
-                displayNotification(data);
-            });
-
-            // Notification response events
             socket.on('notification:read_success', (data) => {
                 log(`Notification marked as read: ${data.notificationId}`);
             });
@@ -280,26 +280,13 @@
                 log(`Error marking notification as read: ${data.error}`);
             });
 
-            socket.on('notifications:all_read_success', () => {
-                log('All notifications marked as read');
+            socket.on('notifications:all_read_success', (data) => {
+                log('All notifications marked as read successfully');
                 updateUnreadCount(0);
             });
 
-            socket.on('notifications:joined', (data) => {
-                log(`Joined notifications room: ${data.message}`);
-            });
-
-            socket.on('notifications:left', (data) => {
-                log(`Left notifications room: ${data.message}`);
-            });
-
-            // Presence events
-            socket.on('presence:user_online', (data) => {
-                log(`User online: ${data.userId}`);
-            });
-
-            socket.on('presence:user_offline', (data) => {
-                log(`User offline: ${data.userId}`);
+            socket.on('notifications:all_read_error', (data) => {
+                log(`Error marking all notifications as read: ${data.error}`);
             });
         }
 
@@ -312,62 +299,20 @@
             log('Disconnected from socket server');
         }
 
-        function joinNotifications() {
-            if (!socket || !isConnected) {
-                alert('Not connected to socket server');
-                return;
-            }
-            socket.emit('join:notifications');
-            log('Requested to join notifications room');
-        }
-
-        function leaveNotifications() {
-            if (!socket || !isConnected) {
-                alert('Not connected to socket server');
-                return;
-            }
-            socket.emit('leave:notifications');
-            log('Requested to leave notifications room');
-        }
-
-        function sendTestNotification() {
+        function markNotificationAsRead() {
             if (!socket || !isConnected) {
                 alert('Not connected to socket server');
                 return;
             }
 
-            const title = document.getElementById('test-title').value.trim();
-            const message = document.getElementById('test-message').value.trim();
-
-            if (!title || !message) {
-                alert('Please fill in title and message');
+            const notificationId = document.getElementById('notification-id').value.trim();
+            if (!notificationId) {
+                alert('Please enter a notification ID');
                 return;
             }
 
-            // You would normally call your API endpoint to create a notification
-            // For demo purposes, we'll just emit a custom event
-            log(`Sending test notification: ${title} - ${message}`);
-            
-            // This would be an API call in real application
-            fetch('http://localhost:8080/v1/api/notifications/test', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${document.getElementById('token-input').value}`
-                },
-                body: JSON.stringify({
-                    title: title,
-                    message: message,
-                    type: 'welcome'
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                log(`Test notification API response: ${JSON.stringify(data)}`);
-            })
-            .catch(error => {
-                log(`Test notification API error: ${error.message}`);
-            });
+            socket.emit('notification:mark_read', { notificationId });
+            log(`Requested to mark notification ${notificationId} as read`);
         }
 
         function markAllAsRead() {
@@ -382,6 +327,8 @@
         // Initialize
         log('Notification test client loaded');
         log('Enter your JWT token and click Connect to start');
+        log('Use http://localhost:3000 as server URL');
     </script>
 </body>
+
 </html>

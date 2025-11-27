@@ -187,9 +187,6 @@ class ContractEventListener {
         objects: [dataToIndexSearch]
       });
 
-      // TODO: Send notifications
-      // await this.sendListingNotification(eventData, nftMetadata);
-
       console.log('CollectionCreated listener processed successfully');
     } catch (error) {
       console.error('Error processing CollectionCreated event:', error);
@@ -289,7 +286,7 @@ class ContractEventListener {
       }
 
       // TODO: Send notifications
-      // await this.sendListingNotification(eventData, nftMetadata);
+      await this.sendListingNotification(eventData, nftMetadata);
 
       console.log('ItemListed listener processed successfully');
 
@@ -390,13 +387,49 @@ class ContractEventListener {
         }
       }
 
-      // TODO: Send cancellation notification
-      // await this.sendCancellationNotification(eventData);
-
       console.log('ListingCancelled event processed successfully');
 
     } catch (error) {
       console.error('Error processing ListingCancelled event:', error);
+    }
+  }
+
+  async startItemSoldListener() {
+    if (!this.marketplaceContract) {
+      throw new Error('Marketplace contract not initialized');
+    }
+
+    try {
+      const listener = async (listingId, buyer, seller, nftContract, tokenId, price, paymentToken, marketFee, royaltyFee, event) => {
+        try {
+          const eventData = {
+            listingId,
+            buyer,
+            seller,
+            nftContract,
+            tokenId: tokenId.toString(),
+            price: ethers.formatEther(price),
+            paymentToken,
+            marketFee,
+            royaltyFee,
+            blockNumber: event.log.blockNumber,
+            transactionHash: event.log.transactionHash,
+            blockTimestamp: event.log.blockTimestamp,
+          };
+
+          console.log('ItemSold Event Data:', eventData);
+
+          await notificationService.createNFTSaleNotification(eventData);
+        } catch (error) {
+          console.error('Error processing ItemSold event:', error);
+        }
+      };
+      this.marketplaceContract.on('ItemSold', listener);
+      this.listeners.set('ItemSold', listener);
+
+    } catch (error) {
+      console.error('Failed to start ItemSold listener:', error);
+      throw error;
     }
   }
 
@@ -596,7 +629,8 @@ class ContractEventListener {
       await Promise.all([
         this.startItemListedListener(),
         this.startCollectionCreatedListener(),
-        this.startListingCancelledListener()
+        this.startListingCancelledListener(),
+        this.startItemSoldListener()
       ]);
 
       console.log('✅ All event listeners started successfully');

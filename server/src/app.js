@@ -7,6 +7,12 @@ import morgan from 'morgan'
 import cookieParser from 'cookie-parser'
 import ContractEventListener from './service/contractEventListener.service.js';
 
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 // Import Route
 import routes from "./routes/index.js"
 

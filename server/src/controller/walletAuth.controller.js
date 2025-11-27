@@ -54,7 +54,7 @@ class WalletAuthController {
 
             // Set HTTP-only cookie with JWT token
             const cookieOptions = WalletAuthService.getSessionCookieOptions();
-            res.cookie('cookie', 'Bearer ' + result.token, cookieOptions);
+            res.cookie('accessToken', 'Bearer ' + result.token, cookieOptions);
 
             new SuccessResponse({
                 message: 'Authentication successful',
