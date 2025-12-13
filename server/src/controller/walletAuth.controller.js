@@ -119,10 +119,10 @@ class WalletAuthController {
           formatErrors: isValid
             ? null
             : [
-                'Message should contain "Welcome to NexArt"',
-                'Message should contain "Nonce: [nonce_value]"',
-                "Message should contain authentication text",
-              ],
+              'Message should contain "Welcome to NexArt"',
+              'Message should contain "Nonce: [nonce_value]"',
+              "Message should contain authentication text",
+            ],
         },
       }).send(res);
     } catch (error) {
