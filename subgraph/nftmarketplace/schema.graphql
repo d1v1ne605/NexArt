@@ -313,6 +313,23 @@ type NFTCollectionUnpaused @entity(immutable: true) {
   transactionHash: Bytes!
 }
 
+# Token Ownership State (Materialized)
+type Token @entity(immutable: false) {
+  id: String! # tokenKey: collection address + tokenId
+  collection: Bytes! # Collection contract address
+  tokenId: BigInt! # Token ID within collection
+  currentOwner: Bytes # Current owner address (null if burned)
+  lastTransferBlock: BigInt! # Block number of last processed transfer
+  lastTransferLogIndex: BigInt! # Log index of last processed transfer  
+  lastTransferTxHash: Bytes! # Transaction hash of last transfer
+  lastTransferTimestamp: BigInt! # Timestamp of last transfer
+  transferCount: BigInt! # Total number of transfers
+  mintedAt: BigInt # Block timestamp when token was minted
+  mintedBy: Bytes # Address that minted the token
+  isBurned: Boolean! # Whether token has been burned
+  tokenURI: String # Token URI if available
+}
+
 # Aggregate Entities for Analytics
 type MarketplaceStats @entity(immutable: false) {
   id: ID! # "marketplace-stats"

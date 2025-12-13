@@ -130,8 +130,6 @@ class SocketService {
         userSockets.delete(socket.id);
         if (userSockets.size === 0) {
           this.connectedUsers.delete(userId);
-          // User is completely offline
-          this.broadcastUserOffline(userId);
         }
       }
       this.socketUsers.delete(socket.id);

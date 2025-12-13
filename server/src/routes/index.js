@@ -6,9 +6,11 @@ const router = express.Router();
 import walletAuthRoutes from "./auth/index.js";
 import userRoutes from "./user/index.js";
 import notificationRoutes from "./notifications/index.js";
+import favoriteRoutes from "./favorite/index.js";
 
 router.use('/auth', walletAuthRoutes);
 router.use('/user', userRoutes);
 router.use('/notifications', notificationRoutes);
+router.use('/favorite', favoriteRoutes);
 
 export default router;

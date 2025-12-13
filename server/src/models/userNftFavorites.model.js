@@ -93,11 +93,11 @@ UserNFTFavorites.prototype.toJSON = function () {
 };
 
 // Class methods
-UserNFTFavorites.findByUserAndNFT = async function (userId, contractAddress, tokenId) {
+UserNFTFavorites.findByUserAndNFT = async function (userId, contractAddress, tokenId, isActive = true) {
     const whereClause = {
         contract_address: contractAddress.toLowerCase(),
         token_id: tokenId,
-        is_active: true
+        is_active: isActive
     };
 
     if (userId) {
@@ -124,7 +124,7 @@ UserNFTFavorites.getUserFavorites = async function (userId, options = {}) {
     {
         model: sequelize.models.User,
         as: 'user',
-        attributes: ['id', 'displayName', 'avatar_url']
+        attributes: ['id', 'display_name', 'avatar_url']
     };
 
     return await this.findAndCountAll({
@@ -149,7 +149,7 @@ UserNFTFavorites.addFavorite = async function (userId, contractAddress, tokenId,
     }
 
     // Check if favorite already exists
-    const existing = await this.findByUserAndNFT(userId, contractAddress, tokenId);
+    const existing = await this.findByUserAndNFT(userId, contractAddress, tokenId, false);
     if (existing) {
         if (!existing.is_active) {
             // Reactivate if it was deactivated

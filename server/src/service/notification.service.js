@@ -1,6 +1,7 @@
 "use strict";
 
 import Notification from '../models/notification.model.js';
+import User from '../models/user.model.js';
 import { SocketService } from './socket.service.js';
 
 /**
@@ -67,16 +68,17 @@ class NotificationService {
      */
     async createNFTListingNotification(eventData, nftMetadata) {
         try {
-            const nftTitle = nftMetadata?.metadata?.title || 'Unknown';
+            const nftTitle = nftMetadata?.metadata?.name || 'Unknown';
             const message = `Your NFT ${nftTitle} has been successfully listed for ${eventData.price} ETH`;
+            const user = await User.findByWalletAddress(eventData.seller.toLowerCase());
             const notificationData = {
-                user_id: nftMetadata?.metadata?.user_id,
+                user_id: user.id,
                 type: 'nft_listed',
                 title: `NFT Listed for Sale`,
                 message,
                 data: {
-                    price: eventData.price,
-                    image: nftMetadata?.metadata?.image
+                    price: eventData.price || 0,
+                    image: nftMetadata?.metadata?.image || ""
                 },
                 tx_hash: eventData.transactionHash
             };
@@ -93,27 +95,40 @@ class NotificationService {
      * @dev Create NFT sale notification
      * @param {Object} eventData - Sale event data
      */
+    /**
+ * @dev Create NFT sale notification
+ * @param {Object} eventData - Sale event data
+ */
     async createNFTSaleNotification(eventData) {
         try {
+            // Get seller and buyer user IDs in parallel
+            const [sellerUser, buyerUser] = await Promise.all([
+                User.findByWalletAddress(eventData.seller.toLowerCase()),
+                User.findByWalletAddress(eventData.buyer.toLowerCase())
+            ]);
+
+            if (!sellerUser || !buyerUser) {
+                throw new Error(`User not found - Seller: ${!sellerUser}, Buyer: ${!buyerUser}`);
+            }
+
             // Notification for seller
             const sellerNotification = {
-                user_id: eventData.seller,
+                user_id: sellerUser.id,
                 type: 'nft_sold',
                 title: `NFT Sold!`,
                 message: `Your NFT has been sold for ${eventData.price} ETH to ${eventData.buyer}`,
                 data: {
-                    nft_contract: eventData.nftContract,
-                    token_id: eventData.tokenId,
+                    nftContract: eventData.nftContract,
+                    tokenId: eventData.tokenId,
                     price: eventData.price,
                     buyer: eventData.buyer,
-                    sale_id: eventData.saleId
                 },
                 tx_hash: eventData.transactionHash
             };
 
             // Notification for buyer
             const buyerNotification = {
-                user_id: eventData.buyer,
+                user_id: buyerUser.id,
                 type: 'nft_bought',
                 title: `NFT Purchase Successful!`,
                 message: `You have successfully purchased an NFT for ${eventData.price} ETH`,
@@ -122,12 +137,11 @@ class NotificationService {
                     token_id: eventData.tokenId,
                     price: eventData.price,
                     seller: eventData.seller,
-                    sale_id: eventData.saleId
                 },
                 tx_hash: eventData.transactionHash
             };
 
-            // Send both notifications
+            // Send both notifications in parallel
             const notifications = await Promise.all([
                 this.createAndSendNotification(sellerNotification),
                 this.createAndSendNotification(buyerNotification)
@@ -137,35 +151,6 @@ class NotificationService {
 
         } catch (error) {
             console.error('❌ Error creating NFT sale notifications:', error);
-            throw error;
-        }
-    }
-
-    /**
-     * @dev Create bid notification
-     * @param {Object} bidData - Bid event data
-     */
-    async createBidNotification(bidData) {
-        try {
-            const notificationData = {
-                user_id: bidData.nft_owner,
-                type: 'bid_received',
-                title: `New Bid Received`,
-                message: `You received a bid of ${bidData.bid_amount} ETH for your NFT`,
-                data: {
-                    nft_contract: bidData.nftContract,
-                    token_id: bidData.tokenId,
-                    bid_amount: bidData.bid_amount,
-                    bidder: bidData.bidder,
-                    bid_id: bidData.bidId
-                },
-                tx_hash: bidData.transactionHash
-            };
-
-            return await this.createAndSendNotification(notificationData);
-
-        } catch (error) {
-            console.error('❌ Error creating bid notification:', error);
             throw error;
         }
     }
