@@ -124,7 +124,7 @@ class FavoriteController {
     }
 
     /**
-     * @route GET /favorite/check/user_id=&contract_address=&token_id=
+     * @route GET /favorite/check?user_id=&contract_address=&token_id=
      * @desc Check if NFT is in user's favorites
      * @access Private
      * @query {user_id, contract_address, token_id}
