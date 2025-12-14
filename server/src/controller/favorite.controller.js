@@ -122,6 +122,42 @@ class FavoriteController {
             next(error);
         }
     }
+
+    /**
+     * @route GET /favorite/check/user_id=&contract_address=&token_id=
+     * @desc Check if NFT is in user's favorites
+     * @access Private
+     * @query {user_id, contract_address, token_id}
+     */
+    isFavorite = async (req, res, next) => {
+        try {
+            if (!req.user) {
+                throw new AuthFailureError('Not authenticated');
+            }
+
+            const { user_id, contract_address, token_id } = req.query;
+
+            if (!user_id || !contract_address || !token_id) {
+                throw new BadRequestError('User ID, contract address, and token ID are required');
+            }
+
+            const isFav = await UserNFTFavorites.isFavorite(
+                user_id,
+                contract_address,
+                token_id
+            );
+
+            new SuccessResponse({
+                message: 'Favorite check completed successfully',
+                metadata: {
+                    is_favorite: isFav
+                }
+            }).send(res);
+
+        } catch (error) {
+            next(error);
+        }
+    }
 }
 
 export default new FavoriteController();
