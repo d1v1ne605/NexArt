@@ -204,4 +204,9 @@ UserNFTFavorites.getPopularNFTs = async function (options = {}) {
     });
 };
 
+UserNFTFavorites.isFavorite = async function (userId, contractAddress, tokenId) {
+    const favorite = await this.findByUserAndNFT(userId, contractAddress, tokenId);
+    return !!favorite;
+}
+
 export default UserNFTFavorites;
