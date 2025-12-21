@@ -60,7 +60,7 @@ class SubgraphPollingService {
       `;
 
       const result = await this.subgraphClient.request(query);
-      
+
       if (result._meta && !result._meta.hasIndexingErrors) {
         console.log(`Subgraph connected successfully at block ${result._meta.block.number}`);
         return true;
@@ -87,7 +87,7 @@ class SubgraphPollingService {
           }
         }
       `;
-      
+
       const result = await this.subgraphClient.request(query);
       // Start from 10 blocks back for safety
       this.lastProcessedBlock = result._meta.block.number - 10;
@@ -118,10 +118,10 @@ class SubgraphPollingService {
       console.warn('Cannot start polling: Subgraph client not initialized');
       return;
     }
-    
+
     this.isPolling = true;
     console.log('Starting subgraph polling...');
-    
+
     this.pollSubgraph();
   }
 
@@ -142,7 +142,7 @@ class SubgraphPollingService {
     try {
       // Get new events from subgraph
       const newEvents = await this.getNewEventsFromSubgraph();
-      
+
       // Process each event
       for (const event of newEvents) {
         await this.processSubgraphEvent(event);
@@ -251,7 +251,7 @@ class SubgraphPollingService {
     try {
       // Create unique event ID to prevent duplicates
       const eventId = `${event.transactionHash}-${event.id}`;
-      
+
       if (this.processedEvents.has(eventId)) {
         console.log(`Event already processed, skipping: ${eventId}`);
         return;

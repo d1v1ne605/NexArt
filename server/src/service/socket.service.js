@@ -43,7 +43,7 @@ class SocketService {
   setupMiddleware() {
     this.io.use(async (socket, next) => {
       try {
-        const token = JWTUtils.extractTokenFromCookie(socket.handshake.auth.cookie);
+        const token = JWTUtils.extractTokenFromCookie(socket.handshake.headers.cookie);
 
         if (!token) {
           throw new AuthFailureError('Access token required');
