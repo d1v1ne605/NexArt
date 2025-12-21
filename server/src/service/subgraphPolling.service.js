@@ -1,6 +1,6 @@
 import { GraphQLClient } from 'graphql-request';
 import dotenv from 'dotenv';
-import { partialUpdateObject, saveObjects } from './algolia.service.js';
+import { itemExists, partialUpdateObject, saveObjects } from './algolia.service.js';
 
 dotenv.config();
 
@@ -292,8 +292,18 @@ class SubgraphPollingService {
         nftMetadata = await this.contractEventListener.getNFTMetadata(event.collection, event.tokenId);
       }
 
+      const objectID = `${event.collection.toLowerCase()}_${event.tokenId}`;
+      const isDataExist = await itemExists({
+        indexName: NFT_INDEX_NAME,
+        objectID: objectID
+      });
+
+      if (isDataExist) {
+        return;
+      }
+
       const dataToIndexSearch = {
-        objectID: `${event.collection.toLowerCase()}_${event.tokenId}`,
+        objectID: objectID,
         title: nftMetadata?.metadata?.name || '',
         description: nftMetadata?.metadata?.description || '',
         collectionName: nftMetadata?.collectionName || '',

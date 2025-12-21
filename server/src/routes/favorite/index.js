@@ -28,7 +28,7 @@ router.get('/my', authenticateToken, FavoriteController.getMyFavorites);
 router.delete('/remove', authenticateToken, FavoriteController.removeFromFavorites);
 
 /**
- * @route GET /favorite/check/user_id=&contract_address=&token_id=
+ * @route GET /favorite/check?user_id=&contract_address=&token_id=
  * @desc Check if NFT is in user's favorites
  * @access Private
  * @query {userid, contract_address, token_id}
