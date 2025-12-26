@@ -2,11 +2,7 @@
 
 import WalletAuthService from "../service/walletAuth.service.js";
 import { SuccessResponse } from "../core/success.response.js";
-import {
-  BadRequestError,
-  AuthFailureError,
-  ForbiddenError,
-} from "../core/error.response.js";
+import { BadRequestError } from "../core/error.response.js";
 
 class WalletAuthController {
   /**
@@ -50,7 +46,7 @@ class WalletAuthController {
       // Validate input
       if (!address || !message || !signature) {
         throw new BadRequestError(
-          "Missing required fields: address, message, signature",
+          "Missing required fields: address, message, signature"
         );
       }
 
@@ -58,12 +54,12 @@ class WalletAuthController {
       const result = await WalletAuthService.verifySignatureAndAuth(
         address,
         message,
-        signature,
+        signature
       );
 
       // Set HTTP-only cookie with JWT token
       const cookieOptions = WalletAuthService.getSessionCookieOptions();
-      res.cookie('accessToken', 'Bearer ' + result.token, cookieOptions);
+      res.cookie("accessToken", "Bearer " + result.token, cookieOptions);
 
       new SuccessResponse({
         message: "Authentication successful",
@@ -86,7 +82,7 @@ class WalletAuthController {
     try {
       const cookieOptions = WalletAuthService.getSessionCookieOptions();
       // Clear the authentication cookie
-      res.clearCookie("cookie", cookieOptions);
+      res.clearCookie("accessToken", cookieOptions);
 
       new SuccessResponse({
         message: "Logged out successfully",
