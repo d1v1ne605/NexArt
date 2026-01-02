@@ -15,7 +15,7 @@ export interface Counter$Type {
   readonly deployedLinkReferences: {};
   readonly immutableReferences: {};
   readonly inputSourceName: "project/contracts/Counter.sol";
-  readonly buildInfoId: "solc-0_8_28-725d9d9ef6bd78299eec78b6c41905124cdbb5dd";
+  readonly buildInfoId: "solc-0_8_28-fc0b8cd4e7e1b988cedf672457f710f0b19edfde";
 };
 
 import "hardhat/types/artifacts";

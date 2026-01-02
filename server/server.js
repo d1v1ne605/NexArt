@@ -1,24 +1,44 @@
-import app from './src/app.js'
-import config from './src/config/config.common.js';
-import socketService from './src/service/socket.service.js';
-import notificationService from './src/service/notification.service.js';
-import cronJobService from './src/service/cronJob.service.js';
-import eventListenerManager from './src/service/eventListenerManager.service.js';
-import { scheduleNonceCleanup, cleanupNoncesNow } from './src/utils/cronJobs.js';
+import http from "http"; // 1. Thêm import này
+import app from "./src/app.js";
+import config from "./src/config/config.common.js";
+import socketService from "./src/service/socket.service.js";
+import notificationService from "./src/service/notification.service.js";
+import cronJobService from "./src/service/cronJob.service.js";
+import eventListenerManager from "./src/service/eventListenerManager.service.js";
+import {
+  scheduleNonceCleanup,
+  cleanupNoncesNow,
+} from "./src/utils/cronJobs.js";
 
-const PORT = process.env.PORT || 8080
-const server = app.listen(PORT, () => {
-    console.log(`
+// const PORT = process.env.PORT || 8080;
+// const server = app.listen(PORT, () => {
+//   console.log(`
+//             🚀 Server is running!
+//             📍 Port: ${PORT}
+//             🌍 Environment: ${config.nodeEnv}
+//             🔗 Local: http://localhost:${PORT}
+//         `);
+// });
+const PORT = process.env.PORT || 8080;
+
+// 2. TẠO SERVER BẰNG HTTP MODULE (Thay vì app.listen)
+const server = http.createServer(app);
+
+// 3. LẮNG NGHE TRÊN 0.0.0.0
+// Nếu bị lỗi ở đây, hãy đọc phần hướng dẫn "Sửa lỗi EADDRINUSE" bên dưới
+server.listen(PORT, "0.0.0.0", () => {
+  console.log(`
             🚀 Server is running!
             📍 Port: ${PORT}
             🌍 Environment: ${config.nodeEnv}
             🔗 Local: http://localhost:${PORT}
-        `)
-})
+            📡 Docker IP: 0.0.0.0 (Ready for Nginx)
+        `);
+});
 
 // Initialize Socket.IO
 socketService.init(server, {
-    origin: process.env.CLIENT_URL || "http://localhost:3000"
+  origin: process.env.CLIENT_URL || "http://localhost:3000",
 });
 
 // Initialize notification service with socket service
@@ -32,50 +52,55 @@ scheduleNonceCleanup();
 
 // Cleanup expired nonces on server start
 cleanupNoncesNow()
-    .then((count) => {
-        console.log(`🧹 Initial nonce cleanup completed. Removed ${count} expired nonces.`);
-    })
-    .catch(error => {
-        console.error('❌ Initial nonce cleanup failed:', error);
-    });
+  .then((count) => {
+    console.log(
+      `🧹 Initial nonce cleanup completed. Removed ${count} expired nonces.`,
+    );
+  })
+  .catch((error) => {
+    console.error("❌ Initial nonce cleanup failed:", error);
+  });
 
 // Initialize event listener manager (blockchain + subgraph polling)
-eventListenerManager.startAll()
-    .then(() => {
-        console.log('🎧 All event listening systems started successfully!');
-        console.log('📊 Monitoring: Factory, Marketplace (blockchain) + NFT events (subgraph)');
-    })
-    .catch(error => {
-        console.error('❌ Failed to start event listening systems:', error);
-    });
+eventListenerManager
+  .startAll()
+  .then(() => {
+    console.log("🎧 All event listening systems started successfully!");
+    console.log(
+      "📊 Monitoring: Factory, Marketplace (blockchain) + NFT events (subgraph)",
+    );
+  })
+  .catch((error) => {
+    console.error("❌ Failed to start event listening systems:", error);
+  });
 
 // Graceful shutdown
-process.on('SIGTERM', async () => {
-    console.log('SIGTERM received, shutting down gracefully...');
+process.on("SIGTERM", async () => {
+  console.log("SIGTERM received, shutting down gracefully...");
 
-    // Stop cron jobs
-    cronJobService.stopAllJobs();
+  // Stop cron jobs
+  cronJobService.stopAllJobs();
 
-    // Stop all event listening systems
-    await eventListenerManager.stopAll();
+  // Stop all event listening systems
+  await eventListenerManager.stopAll();
 
-    server.close(() => {
-        console.log('💤 Server closed');
-        process.exit(0);
-    });
+  server.close(() => {
+    console.log("💤 Server closed");
+    process.exit(0);
+  });
 });
 
-process.on('SIGINT', async () => {
-    console.log('SIGINT received, shutting down gracefully...');
+process.on("SIGINT", async () => {
+  console.log("SIGINT received, shutting down gracefully...");
 
-    // Stop cron jobs
-    cronJobService.stopAllJobs();
+  // Stop cron jobs
+  cronJobService.stopAllJobs();
 
-    // Stop all event listening systems
-    await eventListenerManager.stopAll();
+  // Stop all event listening systems
+  await eventListenerManager.stopAll();
 
-    server.close(() => {
-        console.log('💤 Server closed');
-        process.exit(0);
-    });
+  server.close(() => {
+    console.log("💤 Server closed");
+    process.exit(0);
+  });
 });
