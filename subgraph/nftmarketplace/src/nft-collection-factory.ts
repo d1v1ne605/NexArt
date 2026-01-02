@@ -51,6 +51,19 @@ export function handleCollectionCreated(event: CollectionCreatedEvent): void {
   stats.totalCollections = stats.totalCollections.plus(BigInt.fromI32(1));
   stats.save();
 
+  // 🔥 Initialize CollectionStats for new collection
+  let collectionStats = CollectionStats.load(event.params.collection);
+  if (collectionStats == null) {
+    collectionStats = new CollectionStats(event.params.collection);
+    collectionStats.collection = event.params.collection;
+    collectionStats.totalVolume = BigInt.zero();
+    collectionStats.totalSales = BigInt.zero();
+    collectionStats.floorPrice = BigInt.zero();
+    collectionStats.totalSupply = BigInt.zero();
+    collectionStats.creator = event.params.creator;
+    collectionStats.save();
+  }
+
   // Spawn dynamic data source for the new NFT collection
   NFTCollection.create(event.params.collection);
 }

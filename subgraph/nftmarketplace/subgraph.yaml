@@ -8,7 +8,6 @@ dataSources:
     name: MarketplaceFeeManager
     network: localhost
     source:
-      address: "0xDc37C6a60f34C4aF6c30b1ed7cA54e202582B6A1"
       abi: MarketplaceFeeManager
     mapping:
       kind: ethereum/events
@@ -45,7 +44,6 @@ dataSources:
     name: NFTCollectionFactory
     network: localhost
     source:
-      address: "0xEAf1eAd7f9c3FEFa8D28bE1FDB659545917E0d3F"
       abi: NFTCollectionFactory
     mapping:
       kind: ethereum/events
@@ -83,7 +81,6 @@ dataSources:
     name: Marketplace
     network: localhost
     source:
-      address: "0x3D22B423A3E5ccE89724f6873D770D6dd0e80994"
       abi: Marketplace
     mapping:
       kind: ethereum/events

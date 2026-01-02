@@ -298,12 +298,8 @@ class SubgraphPollingService {
         objectID: objectID
       });
 
-      if (isDataExist) {
-        return;
-      }
-
-      const dataToIndexSearch = {
-        objectID: objectID,
+      const metadataUpdate = {
+        objectID: objectID, // Bắt buộc phải có để Algolia định danh
         title: nftMetadata?.metadata?.name || '',
         description: nftMetadata?.metadata?.description || '',
         collectionName: nftMetadata?.collectionName || '',
@@ -311,18 +307,31 @@ class SubgraphPollingService {
         collectionAddress: event.collection,
         creator: event.to,
         owner: event.to,
-        price: 0,
         attributes: nftMetadata?.metadata?.attributes || [],
         image: nftMetadata?.metadata?.image || '',
-        is_for_sale: false,
         minted_at: new Date(parseInt(event.blockTimestamp) * 1000).toISOString()
       };
 
-      // Update nft search index
-      await saveObjects({
-        indexName: NFT_INDEX_NAME,
-        objects: [dataToIndexSearch]
-      });
+
+      if (isDataExist) {
+        await partialUpdateObject({
+          indexName: NFT_INDEX_NAME,
+          objectID: objectID,
+          partialObject: metadataUpdate,
+        });
+        console.log(`🛡️ Race condition handled: Only metadata updated for ${objectID}`);
+      } else {
+        const fullNewItem = {
+          ...metadataUpdate,
+          price: 0,
+          is_for_sale: false
+        };
+        await saveObjects({
+          indexName: NFT_INDEX_NAME,
+          objects: [fullNewItem]
+        });
+        console.log(`🆕 New NFT created with default market state: ${objectID}`);
+      }
 
       // Update totalItems of collection search index
       if (this.contractEventListener) {
