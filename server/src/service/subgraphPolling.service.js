@@ -312,7 +312,6 @@ class SubgraphPollingService {
         minted_at: new Date(parseInt(event.blockTimestamp) * 1000).toISOString()
       };
 
-
       if (isDataExist) {
         await partialUpdateObject({
           indexName: NFT_INDEX_NAME,
