@@ -15,19 +15,19 @@ import "./NFTCollection.sol";
 contract NFTCollectionFactory is Ownable, ReentrancyGuard, Pausable {
     /// @dev Mapping from creator to their collections
     mapping(address => address[]) public creatorCollections;
-    
+
     /// @dev Mapping to check if an address is a valid collection
     mapping(address => bool) public isValidCollection;
-    
+
     /// @dev Array of all created collections
     address[] public allCollections;
-    
+
     /// @dev Deployment fee for creating collections
     uint256 public deploymentFee;
-    
+
     /// @dev Address to receive deployment fees
     address public feeRecipient;
-    
+
     /// @dev Maximum collections per creator (0 for unlimited)
     uint256 public maxCollectionsPerCreator;
 
@@ -104,8 +104,10 @@ contract NFTCollectionFactory is Ownable, ReentrancyGuard, Pausable {
             revert InsufficientDeploymentFee();
         }
 
-        if (maxCollectionsPerCreator > 0 && 
-            creatorCollections[msg.sender].length >= maxCollectionsPerCreator) {
+        if (
+            maxCollectionsPerCreator > 0 &&
+            creatorCollections[msg.sender].length >= maxCollectionsPerCreator
+        ) {
             revert MaxCollectionsExceeded();
         }
 
@@ -166,12 +168,15 @@ contract NFTCollectionFactory is Ownable, ReentrancyGuard, Pausable {
             revert InvalidCreator();
         }
 
-        if (maxCollectionsPerCreator > 0 && 
-            creatorCollections[creator].length >= maxCollectionsPerCreator) {
+        if (
+            maxCollectionsPerCreator > 0 &&
+            creatorCollections[creator].length >= maxCollectionsPerCreator
+        ) {
             revert MaxCollectionsExceeded();
         }
 
         // Deploy new NFTCollection contract
+
         try new NFTCollection(
             params.name,
             params.symbol,
@@ -209,7 +214,9 @@ contract NFTCollectionFactory is Ownable, ReentrancyGuard, Pausable {
      * @param creator Creator address
      * @return collections Array of collection addresses
      */
-    function getCreatorCollections(address creator) external view returns (address[] memory) {
+    function getCreatorCollections(
+        address creator
+    ) external view returns (address[] memory) {
         return creatorCollections[creator];
     }
 
@@ -220,21 +227,19 @@ contract NFTCollectionFactory is Ownable, ReentrancyGuard, Pausable {
      * @return creator Creator address
      * @return totalSupply Total supply of the collection
      */
-    function getCollectionInfo(address collection) external view returns (
-        bool isValid,
-        address creator,
-        uint256 totalSupply
-    ) {
+    function getCollectionInfo(
+        address collection
+    )
+        external
+        view
+        returns (bool isValid, address creator, uint256 totalSupply)
+    {
         if (!isValidCollection[collection]) {
             return (false, address(0), 0);
         }
 
         NFTCollection nftCollection = NFTCollection(collection);
-        return (
-            true,
-            nftCollection.owner(),
-            nftCollection.totalSupply()
-        );
+        return (true, nftCollection.owner(), nftCollection.totalSupply());
     }
 
     /**
@@ -244,12 +249,12 @@ contract NFTCollectionFactory is Ownable, ReentrancyGuard, Pausable {
      * @return collections Array of collection addresses
      * @return total Total number of collections
      */
-    function getAllCollections(uint256 offset, uint256 limit) external view returns (
-        address[] memory collections,
-        uint256 total
-    ) {
+    function getAllCollections(
+        uint256 offset,
+        uint256 limit
+    ) external view returns (address[] memory collections, uint256 total) {
         total = allCollections.length;
-        
+
         if (offset >= total) {
             return (new address[](0), total);
         }
@@ -278,7 +283,9 @@ contract NFTCollectionFactory is Ownable, ReentrancyGuard, Pausable {
      * @dev Returns the number of collections created by a creator
      * @param creator Creator address
      */
-    function getCreatorCollectionCount(address creator) external view returns (uint256) {
+    function getCreatorCollectionCount(
+        address creator
+    ) external view returns (uint256) {
         return creatorCollections[creator].length;
     }
 
@@ -300,7 +307,7 @@ contract NFTCollectionFactory is Ownable, ReentrancyGuard, Pausable {
         if (newRecipient == address(0)) {
             revert InvalidFeeRecipient();
         }
-        
+
         address oldRecipient = feeRecipient;
         feeRecipient = newRecipient;
         emit FeeRecipientUpdated(oldRecipient, newRecipient);

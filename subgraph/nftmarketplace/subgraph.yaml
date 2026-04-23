@@ -76,7 +76,7 @@ dataSources:
         - event: Unpaused(address)
           handler: handleUnpaused
       file: ./src/nft-collection-factory.ts
-  
+
   - kind: ethereum
     name: Marketplace
     network: localhost

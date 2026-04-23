@@ -144,8 +144,8 @@ contract Marketplace is Ownable, ReentrancyGuard, Pausable {
      * @param paymentToken Payment token address (address(0) for ETH)
      * @return listingId Generated listing ID
      * @notice Caller must be the owner of the NFT and have approved the marketplace
-     * @notice 
-        * Frontend - user must approve before listing 
+     * @notice
+        * Frontend - user must approve before listing
             const nftContract = new ethers.Contract(nftAddress, NFTCollection.abi, signer);
 
             // Option 1: Approve specific token

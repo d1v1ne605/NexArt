@@ -1,11 +1,11 @@
-import jwt from 'jsonwebtoken';
-import config from '../config/config.common.js';
-import { BadRequestError } from '../core/error.response.js';
+import jwt from "jsonwebtoken";
+import config from "../config/config.common.js";
+import { BadRequestError } from "../core/error.response.js";
 
 class JWTUtils {
   generateToken(payload) {
     return jwt.sign(payload, config.jwt.secret, {
-      expiresIn: config.jwt.expiresIn
+      expiresIn: config.jwt.expiresIn,
     });
   }
 
@@ -13,7 +13,7 @@ class JWTUtils {
     try {
       return jwt.verify(token, config.jwt.secret);
     } catch (error) {
-      throw new BadRequestError('Invalid or expired token');
+      throw new BadRequestError("Invalid or expired token");
     }
   }
 
@@ -30,34 +30,41 @@ class JWTUtils {
   generateRefreshToken(user) {
     const payload = {
       id: user.id,
-      type: 'refresh'
+      type: "refresh",
     };
 
     return jwt.sign(payload, config.jwt.secret, {
-      expiresIn: '30d'
+      expiresIn: "30d",
     });
   }
 
   extractTokenFromCookie(cookieHeader) {
-    if (!cookieHeader) {
-      return null;
-    }
-    const cookies = {};
-    cookieHeader.split(';').forEach(cookie => {
-      const [name, value] = cookie.trim().split('=');
+    if (!cookieHeader) return null;
+
+    // 1. Parse chuỗi cookie header thành object
+    const cookies = cookieHeader.split(";").reduce((acc, cookie) => {
+      const [name, value] = cookie.trim().split("=");
       if (name && value) {
-        cookies[name] = decodeURIComponent(value);
+        acc[name] = decodeURIComponent(value);
       }
-    });
+      return acc;
+    }, {});
 
-    const token = cookies.cookie || cookies.accessToken;
-    if (!token) {
-      return null;
+    // 2. Lấy token theo ĐÚNG tên bạn đã đặt khi login
+    // Kiểm tra xem bạn lưu cookie tên là 'accessToken', 'token', hay 'authorization'?
+    // Ưu tiên check 'accessToken' trước (khớp với code cũ của bạn)
+    let token = cookies.accessToken || cookies.token || cookies.Authorization;
+
+    if (!token) return null;
+
+    // 3. Xử lý trường hợp token bị dính prefix 'Bearer ' (thường thấy nếu cookie set ẩu)
+    if (token.startsWith("Bearer ")) {
+      token = token.slice(7, token.length).trim();
     }
 
-    // Remove 'Bearer ' prefix if present
-    if (token.startsWith('Bearer ')) {
-      return token.substring(7);
+    // 4. Xử lý trường hợp token bị dính ngoặc kép (do JSON.stringify)
+    if (token.startsWith('"') && token.endsWith('"')) {
+      token = token.slice(1, -1);
     }
 
     return token;
