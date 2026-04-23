@@ -4,7 +4,7 @@
 
 ## Video Demo
 
-[![NexArt Demo](https://drive.google.com/file/d/1lt35oBQpXbqF_MDfiNJbwSkkbGYoaGmz/view?usp=drive_link)](https://drive.google.com/file/d/12BfeaC988rn1v4AqEvy0-9i-CZAFi_3j/view)
+[![NexArt Demo](https://github.com/user-attachments/assets/edb19af8-1669-4df6-bc63-65a81cb17728)](https://drive.google.com/file/d/12BfeaC988rn1v4AqEvy0-9i-CZAFi_3j/view)
 
 Watch a complete walkthrough of the NexArt platform showcasing the user interface, NFT collection creation, minting process, marketplace listings, and NFT purchasing.
 
