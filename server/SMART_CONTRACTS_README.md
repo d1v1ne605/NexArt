@@ -1,48 +1,67 @@
 # NexArt NFT Marketplace Smart Contracts
 
-Hệ thống smart contract hoàn chỉnh cho NFT marketplace được viết bằng Solidity với OpenZeppelin libraries.
+Complete smart contract system for NFT marketplace written in Solidity with OpenZeppelin libraries.
 
-## 🏗️ Kiến trúc hệ thống
+## Table of Contents
+
+- [System Architecture](#-system-architecture)
+- [Setup and Deployment](#-setup-and-deployment)
+- [Contract Addresses](#-contract-addresses-after-deployment)
+- [Usage Examples](#-usage-examples)
+- [Security Features](#-security-features)
+- [Fee Structure](#-fee-structure)
+- [Testing](#-testing)
+- [Gas Optimization](#-gas-optimization)
+- [Upgrade Strategy](#-upgrade-strategy)
+- [Events](#-events)
+- [Important Notes](#-important-notes)
+- [Production Checklist](#-production-checklist)
+
+---
+
+## System Architecture
 
 ### 1. **NFTCollection.sol**
-- **Chức năng**: ERC-721 compliant NFT collection contract
-- **Tính năng**:
-  - Mint NFT với metadata URI và royalty
+- **Purpose**: ERC-721 compliant NFT collection contract
+- **Features**:
+  - Mint NFTs with metadata URI and royalty
   - Batch mint multiple NFTs
-  - Quản lý royalty cho từng token
+  - Manage royalties for each token
   - Burn tokens
   - Pause/unpause functionality
   - Collection metadata management
 
 ### 2. **NFTCollectionFactory.sol**  
-- **Chức năng**: Factory contract để deploy NFT collections
-- **Tính năng**:
-  - Deploy collection mới cho creators
-  - Tracking all collections và creators
+- **Purpose**: Factory contract to deploy NFT collections
+- **Features**:
+  - Deploy new collections for creators
+  - Track all collections and creators
   - Deployment fee management
   - Maximum collections per creator limit
   - Emergency controls
 
 ### 3. **Marketplace.sol**
-- **Chức năng**: Central marketplace cho NFT trading
-- **Tính năng**:
-  - List NFTs for sale (ETH và ERC20 tokens)
-  - Buy NFTs với automatic fee distribution
+- **Purpose**: Central marketplace for NFT trading
+- **Features**:
+  - List NFTs for sale (ETH and ERC20 tokens)
+  - Buy NFTs with automatic fee distribution
   - Cancel listings
   - Update listing prices
-  - Royalty support cho creators
+  - Royalty support for creators
   - Paginated queries
   - Emergency controls
 
 ### 4. **MarketplaceFeeManager.sol**
-- **Chức năng**: Centralized fee management
-- **Tính năng**:
+- **Purpose**: Centralized fee management
+- **Features**:
   - Configurable marketplace fees
   - Minimum fee enforcement
   - Fee recipient management
   - Fee calculation utilities
 
-## 🛠️ Setup và Deployment
+---
+
+## Setup and Deployment
 
 ### Prerequisites
 ```bash
@@ -64,7 +83,7 @@ npx hardhat test
 # Start local node
 npx hardhat node
 
-# Deploy contracts
+# In another terminal, deploy contracts
 npx hardhat run scripts/deploy.ts --network localhost
 ```
 
@@ -73,13 +92,17 @@ npx hardhat run scripts/deploy.ts --network localhost
 npx hardhat ignition deploy ignition/modules/NFTMarketplace.ts --network localhost
 ```
 
-## 📋 Contract Addresses (after deployment)
+---
 
-Sau khi deploy, các địa chỉ contract sẽ được hiển thị. Lưu lại để sử dụng trong frontend/backend.
+## Contract Addresses (After Deployment)
 
-## 🎯 Usage Examples
+After deployment, contract addresses will be displayed. Save them for use in frontend/backend configuration.
 
-### 1. Tạo NFT Collection
+---
+
+## Usage Examples
+
+### 1. Creating an NFT Collection
 
 ```javascript
 // Connect to factory contract
@@ -101,7 +124,7 @@ const tx = await factory.createCollection(params, {
 await tx.wait();
 ```
 
-### 2. Mint NFT
+### 2. Minting an NFT
 
 ```javascript
 // Get collection contract
@@ -116,7 +139,7 @@ const tx = await collection.mintNFT(
 await tx.wait();
 ```
 
-### 3. List NFT trên Marketplace
+### 3. Listing NFT on Marketplace
 
 ```javascript
 // Approve marketplace first
@@ -132,7 +155,7 @@ const tx = await marketplace.listItem(
 await tx.wait();
 ```
 
-### 4. Buy NFT
+### 4. Buying an NFT
 
 ```javascript
 // Get listing ID
@@ -147,37 +170,43 @@ const tx = await marketplace.buyItem(listingId, {
 await tx.wait();
 ```
 
-## 🔐 Security Features
+---
 
-- **ReentrancyGuard**: Bảo vệ khỏi reentrancy attacks
+## Security Features
+
+- **ReentrancyGuard**: Protection against reentrancy attacks
 - **Pausable**: Emergency pause functionality
-- **Ownable**: Access control cho admin functions
-- **SafeERC20**: Safe token transfers
+- **Ownable**: Access control for admin functions
+- **SafeERC20**: Safe token transfer operations
 - **Custom Errors**: Gas-efficient error handling
 - **Input Validation**: Comprehensive parameter checking
 
-## 💰 Fee Structure
+---
+
+## Fee Structure
 
 ### Marketplace Fees
-- **Default**: 2.5% của giá bán
+- **Default**: 2.5% of sale price
 - **Minimum Fee**: 0.001 ETH
-- **Configurable**: Owner có thể thay đổi
+- **Configurable**: Owner can adjust fees
 
 ### Creator Royalties
 - **Range**: 0-10% (configurable per token)
-- **Automatic**: Tự động trả royalty khi bán lại
-- **Skip**: Không trả royalty nếu creator = seller
+- **Automatic**: Automatically paid on resale
+- **Skip**: No royalty if creator = seller
 
 ### Deployment Fees
 - **Collection Creation**: 0.01 ETH (configurable)
 - **Purpose**: Prevent spam collections
 
-## 🧪 Testing
+---
 
-Comprehensive test suite bao gồm:
-- Unit tests cho tất cả contracts
-- Integration tests cho workflows
-- Edge cases và error conditions
+## Testing
+
+Comprehensive test suite includes:
+- Unit tests for all contracts
+- Integration tests for workflows
+- Edge cases and error conditions
 - Gas optimization tests
 
 ```bash
@@ -191,36 +220,46 @@ npx hardhat test test/NFTMarketplace.ts
 REPORT_GAS=true npx hardhat test
 ```
 
-## 📊 Gas Optimization
+---
 
-- **Batch Operations**: Batch mint để giảm gas
+## Gas Optimization
+
+- **Batch Operations**: Batch mint to reduce gas
 - **Efficient Storage**: Packed structs
-- **Custom Errors**: Thay vì revert strings
-- **View Functions**: Để query data off-chain
+- **Custom Errors**: Instead of revert strings
+- **View Functions**: For off-chain data queries
 
-## 🔄 Upgrade Strategy
+---
 
-Contracts được thiết kế modular để dễ upgrade:
-- **Fee Manager**: Có thể thay đổi logic fees
-- **Factory**: Có thể deploy versions mới
-- **Marketplace**: Core logic có thể upgrade
+## Upgrade Strategy
 
-## 📝 Events
+Contracts are designed modularly for easy upgrades:
+- **Fee Manager**: Can change fee logic
+- **Factory**: Can deploy new versions
+- **Marketplace**: Core logic can be upgraded
 
-Tất cả contracts emit detailed events cho:
+---
+
+## Events
+
+All contracts emit detailed events for:
 - **Indexing**: Easy backend tracking
 - **Frontend**: Real-time updates
 - **Analytics**: Market insights
 
-## ⚠️ Important Notes
+---
 
-1. **Mainnet Deployment**: Review all parameters trước khi deploy
-2. **Fee Recipients**: Set correct addresses cho production
+## Important Notes
+
+1. **Mainnet Deployment**: Review all parameters before deploying
+2. **Fee Recipients**: Set correct addresses for production
 3. **Access Control**: Verify owner addresses
-4. **Gas Limits**: Test với realistic data sizes
-5. **Approval Flow**: Users phải approve NFTs trước khi list
+4. **Gas Limits**: Test with realistic data sizes
+5. **Approval Flow**: Users must approve NFTs before listing
 
-## 🎯 Production Checklist
+---
+
+## Production Checklist
 
 - [ ] Set production fee recipients
 - [ ] Configure appropriate fees
@@ -231,9 +270,11 @@ Tất cả contracts emit detailed events cho:
 - [ ] Set up event monitoring
 - [ ] Prepare emergency procedures
 
-## 📞 Support
+---
 
-Nếu có vấn đề với contracts:
+## Support
+
+If you encounter issues with contracts:
 1. Check event logs
 2. Verify contract state
 3. Review transaction details
@@ -241,10 +282,10 @@ Nếu có vấn đề với contracts:
 
 ---
 
-**⚡ Built with**:
+**Built with**:
 - Solidity ^0.8.20
 - OpenZeppelin Contracts v5.4.0
 - Hardhat Development Environment
 - TypeScript for scripts and tests
 
-**🔒 Security**: All contracts follow best practices và đã được designed theo OpenZeppelin standards.
+**Security**: All contracts follow best practices and are designed according to OpenZeppelin standards.

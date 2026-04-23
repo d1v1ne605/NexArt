@@ -1,67 +1,86 @@
-# 🎨 NexArt NFT Marketplace Console Interface
+# NexArt NFT Marketplace Console Interface
 
-Script tương tác với các smart contract đã deploy của NexArt NFT Marketplace thông qua giao diện console với menu interaktif.
+Interactive script for interacting with NexArt NFT Marketplace smart contracts through a console interface with interactive menu.
 
-## 📋 Tính năng chính
+## Table of Contents
 
-### 🏭 1. NFT Collection Factory Operations
-- **Tạo Collection mới** với dữ liệu ngẫu nhiên (tên, symbol, description, max supply)
-- **Xem tất cả Collections** đã được tạo
-- **Xem Collections của Creator** cụ thể
-- **Thống kê Factory** (tổng số collection, phí deploy, v.v.)
+- [Main Features](#main-features)
+- [Usage](#usage)
+- [Random Data Generation](#random-data-generation)
+- [Contract Addresses](#contract-addresses)
+- [Detailed Features](#detailed-features)
+- [Important Notes](#important-notes)
+- [Use Cases](#use-cases)
+- [Customization](#customization)
+- [Troubleshooting](#troubleshooting)
+- [Tips](#tips)
 
-### 🎨 2. NFT Collection Operations  
-- **Mint NFT** với metadata ngẫu nhiên và royalty ngẫu nhiên
-- **Batch Mint NFTs** (mint nhiều NFT cùng lúc)
-- **Xem thống kê Collection** (total supply, creator, description, v.v.)
-- **Xem thông tin Token** cụ thể (owner, creator, URI, royalty)
-- **Set Royalty** cho token với giá trị ngẫu nhiên
+---
 
-### 🛒 3. Marketplace Operations
-- **List NFT để bán** với giá ngẫu nhiên (0.01-2.0 ETH)
-- **Mua NFT** đã được list
-- **Hủy listing**
-- **Cập nhật giá** listing với giá ngẫu nhiên mới
-- **Xem tất cả listings** đang hoạt động
-- **Xem listings của bạn**
+## Main Features
 
-### 💰 4. Fee Manager Operations
-- **Xem thông tin phí** marketplace (fee %, recipient, minimum fee)
-- **Tính phí** cho một giao dịch cụ thể
-- **Xem breakdown phí** chi tiết
+### 1. NFT Collection Factory Operations
+- **Create New Collection** with random data (name, symbol, description, max supply)
+- **View All Collections** created
+- **View Creator Collections** for specific creator
+- **Factory Statistics** (total collections, deployment fees, etc.)
 
-## 🚀 Cách sử dụng
+### 2. NFT Collection Operations  
+- **Mint NFT** with random metadata and royalty
+- **Batch Mint NFTs** (mint multiple NFTs at once)
+- **View Collection Statistics** (total supply, creator, description, etc.)
+- **View Token Information** for specific token (owner, creator, URI, royalty)
+- **Set Royalty** for token with random value
 
-### Yêu cầu
-- Node.js và npm đã được cài đặt
-- Hardhat environment đã được setup
-- Ganache hoặc local blockchain đang chạy trên port 7545
-- Các contract đã được deploy
+### 3. Marketplace Operations
+- **List NFT for Sale** with random price (0.01-2.0 ETH)
+- **Buy Listed NFT** 
+- **Cancel Listing**
+- **Update Listing Price** with new random price
+- **View All Active Listings**
+- **View Your Listings**
 
-### Chạy script
+### 4. Fee Manager Operations
+- **View Fee Information** marketplace (fee %, recipient, minimum fee)
+- **Calculate Fees** for specific transaction
+- **View Fee Breakdown** details
+
+---
+
+## Usage
+
+### Requirements
+- Node.js and npm installed
+- Hardhat environment setup
+- Ganache or local blockchain running on port 7545
+- Contracts deployed
+
+### Running the Script
 ```bash
 cd server
 npx hardhat run scripts/interact.ts --network ganache
 ```
 
-### Cấu trúc Menu
+### Menu Structure
 ```
-📋 MAIN MENU
+MAIN MENU
 ═══════════════════════════════════════════
-1. 🏭 NFT Collection Factory Operations
-2. 🎨 NFT Collection Operations  
-3. 🛒 Marketplace Operations
-4. 💰 Fee Manager Operations
-5. 📊 View Account Information
-0. ❌ Exit
+1. NFT Collection Factory Operations
+2. NFT Collection Operations  
+3. Marketplace Operations
+4. Fee Manager Operations
+5. View Account Information
+0. Exit
 ```
 
-## 🎲 Dữ liệu ngẫu nhiên
+---
 
-Script tự động generate các dữ liệu ngẫu nhiên:
+## Random Data Generation
+
+The script automatically generates random data:
 
 ### Collection Names
-- "Mystic Dragons", "Golden Warriors", "Royal Gems", "Eternal Artifacts", v.v.
+- "Mystic Dragons", "Golden Warriors", "Royal Gems", "Eternal Artifacts", etc.
 
 ### Symbols  
 - "MDG", "GWR", "RGM", "EAR", "LSP", "STL", "ADR", "DVT"
@@ -70,7 +89,7 @@ Script tự động generate các dữ liệu ngẫu nhiên:
 - "A unique collection of digital art pieces"
 - "Exclusive NFTs with mystical powers"
 - "Rare collectibles from another dimension"
-- v.v.
+- etc.
 
 ### Prices
 - 0.01, 0.05, 0.1, 0.25, 0.5, 1.0, 2.0 ETH
@@ -84,9 +103,11 @@ Script tự động generate các dữ liệu ngẫu nhiên:
 ### Max Supply
 - 100-1100 tokens
 
-## 📍 Contract Addresses
+---
 
-Script được cấu hình để sử dụng các contract addresses:
+## Contract Addresses
+
+The script is configured to use these contract addresses:
 
 ```typescript
 const NFT_COLLECTION_FACTORY_ADDRESS = '0xBCd650aa5eF13115a3113e6D98B8ab8dB127beE1';
@@ -94,50 +115,54 @@ const MARKETPLACE_ADDRESS = '0xccc33E23199E1bD58f3cD9b8740539810a8a6a0c';
 const MARKETPLACE_FEE_MANAGER_ADDRESS = '0xCD3e96AaE2B3BDaAb3B4893a67dF1580f051A20E';
 ```
 
-**Lưu ý**: Cập nhật các addresses này nếu bạn deploy contracts mới.
+Note: Update these addresses if you deploy new contracts.
 
-## 🔧 Các tính năng chi tiết
+---
+
+## Detailed Features
 
 ### Factory Operations
 
-#### 1. Tạo Collection mới
-- Tự động generate tên, symbol, description ngẫu nhiên
-- Max supply ngẫu nhiên từ 100-1100
-- Tự động trả phí deployment
-- Hiển thị contract address của collection mới
+#### 1. Create New Collection
+- Automatically generate random name, symbol, description
+- Random max supply from 100-1100
+- Automatically pay deployment fee
+- Display new collection contract address
 
-#### 2. Xem Collections
-- Pagination support (hiển thị 10 collection đầu tiên)
-- Thông tin creator, total supply, validation status
+#### 2. View Collections
+- Pagination support (display first 10 collections)
+- Information: creator, total supply, validation status
 
 ### Collection Operations
 
 #### 1. Mint NFT
-- Cần nhập collection address
-- Token URI và royalty được generate ngẫu nhiên
-- Hiển thị token ID sau khi mint thành công
+- Requires collection address input
+- Token URI and royalty randomly generated
+- Display token ID after successful mint
 
 #### 2. Batch Mint
-- Mint 1-5 NFTs cùng lúc
-- Tất cả NFTs có cùng royalty rate
+- Mint 1-5 NFTs at once
+- All NFTs share same royalty rate
 
 ### Marketplace Operations
 
 #### 1. List NFT
-- Cần có NFT trong ví
-- **Quan trọng**: Phải approve marketplace trước khi list
-- Giá được set ngẫu nhiên
-- Chỉ hỗ trợ ETH payment
+- Requires NFT in wallet
+- Important: Must approve marketplace before listing
+- Price randomly set
+- ETH payment only
 
 #### 2. Buy NFT
-- Cần listing ID
-- Tự động tính và trả các phí (market fee, royalty)
-- Transfer NFT về ví buyer
+- Requires listing ID
+- Automatically calculate and pay fees (market fee, royalty)
+- Transfer NFT to buyer wallet
 
-## ⚠️ Lưu ý quan trọng
+---
 
-### 1. Approval trước khi List NFT
-Trước khi list NFT, bạn cần approve marketplace contract:
+## Important Notes
+
+### 1. Approval Before Listing NFT
+Before listing an NFT, you need to approve the marketplace contract:
 
 ```solidity
 // Option 1: Approve specific token
@@ -147,82 +172,88 @@ await nftContract.approve(marketplaceAddress, tokenId);
 await nftContract.setApprovalForAll(marketplaceAddress, true);
 ```
 
-### 2. Đảm bảo đủ ETH
-- Account cần đủ ETH để trả gas fees
-- Khi tạo collection cần trả deployment fee
-- Khi mua NFT cần đủ ETH theo giá listed
+### 2. Ensure Sufficient ETH
+- Account needs enough ETH for gas fees
+- Creating collection requires paying deployment fee
+- Buying NFT requires ETH according to listed price
 
 ### 3. Network Configuration
-Script được cấu hình cho Ganache network. Nếu sử dụng network khác, cập nhật trong `initializeContracts()`.
+Script is configured for Ganache network. If using different network, update in `initializeContracts()`.
 
-## 🎯 Use Cases
+---
+
+## Use Cases
 
 ### Testing Smart Contracts
-- Test các function của contract với dữ liệu ngẫu nhiên
-- Kiểm tra gas consumption
+- Test contract functions with random data
+- Check gas consumption
 - Verify event emission
 
 ### Demo/Presentation
-- Showcase tính năng marketplace
-- Tạo dữ liệu mẫu nhanh chóng
-- Interactive demo cho client/investor
+- Showcase marketplace features
+- Create sample data quickly
+- Interactive demo for clients/investors
 
 ### Development
 - Debug contract interactions
-- Test edge cases với random data
+- Test edge cases with random data
 - Quick prototyping
 
-## 🛠️ Customization
+---
 
-### Thay đổi Random Data
-Customize các function generate random data:
+## Customization
+
+### Change Random Data
+Customize these random data generation functions:
 - `generateRandomName()`
 - `generateRandomSymbol()`
 - `generateRandomDescription()`
 - `generateRandomPrice()`
 - `generateRandomTokenURI()`
 
-### Thêm tính năng mới
-- Thêm menu items mới trong các `show*Menu()` functions
-- Implement function tương ứng
+### Add New Features
+- Add new menu items in `show*Menu()` functions
+- Implement corresponding function
 - Update switch cases
 
 ### Network Configuration
-Thay đổi network trong `initializeContracts()`:
+Change network in `initializeContracts()`:
 ```typescript
-const { ethers: hreEthers } = await network.connect("sepolia"); // Thay "ganache"
+const { ethers: hreEthers } = await network.connect("sepolia"); // Change "ganache"
 ```
 
-## 📝 Troubleshooting
+---
 
-### Lỗi "Contract not found"
-- Kiểm tra contract addresses
-- Đảm bảo contracts đã được deploy
-- Verify network đúng
+## Troubleshooting
 
-### Lỗi "Insufficient funds"
-- Kiểm tra ETH balance
-- Đảm bảo đủ ETH cho gas fees
+### Error: "Contract not found"
+- Check contract addresses
+- Ensure contracts are deployed
+- Verify correct network
 
-### Lỗi "Not approved"
-- Approve marketplace contract trước khi list NFT
-- Sử dụng `setApprovalForAll(marketplaceAddress, true)`
+### Error: "Insufficient funds"
+- Check ETH balance
+- Ensure enough ETH for gas fees
+
+### Error: "Not approved"
+- Approve marketplace contract before listing NFT
+- Use `setApprovalForAll(marketplaceAddress, true)`
 
 ### Connection issues
-- Đảm bảo Ganache đang chạy
-- Kiểm tra port và RPC URL
+- Ensure Ganache is running
+- Check port and RPC URL
 - Verify network configuration
 
 ---
 
-## 💡 Tips
+## Tips
 
-1. **Sử dụng setApprovalForAll**: Approve toàn bộ thay vì từng token
-2. **Test với small amounts**: Bắt đầu với giá trị nhỏ
-3. **Monitor gas costs**: Theo dõi gas usage cho các operation
-4. **Keep track of IDs**: Note lại collection addresses và token IDs
-5. **Use account info**: Check balance thường xuyên
+1. Use setApprovalForAll: Approve all instead of individual tokens
+2. Test with small amounts: Start with small values
+3. Monitor gas costs: Track gas usage for operations
+4. Keep track of IDs: Note collection addresses and token IDs
+5. Use account info: Check balance regularly
 
 ---
 
-Enjoy building with NexArt NFT Marketplace! 🚀✨
+Enjoy building with NexArt NFT Marketplace!
